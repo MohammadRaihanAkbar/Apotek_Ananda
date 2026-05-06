@@ -1,146 +1,139 @@
 <?php
 /**
- * Model: Piutang - Apotek Ananda Jadimulya
- * Query layer untuk tabel `piutang`.
+ * Model: Piutang - otomatis bersumber dari tabel faktur.
  */
 
 require_once __DIR__ . '/../config/database.php';
 
 class Piutang {
     private PDO $db;
-    
+
     public function __construct() {
         $this->db = getDBConnection();
     }
-    
-    /**
-     * Ambil semua piutang dengan filter opsional
-     */
+
     public function getAll(?string $status = null, ?string $bulan = null, ?string $search = null): array {
-        $sql = "SELECT pi.*, u.nama_lengkap AS created_by FROM piutang pi LEFT JOIN users u ON pi.id_user = u.id_user";
+        $sql = "SELECT
+                    f.id_faktur,
+                    f.id_faktur AS id_piutang,
+                    f.no_faktur,
+                    p.nama_pbf,
+                    f.tanggal_faktur,
+                    f.tanggal_jatuh_tempo,
+                    f.status_bayar AS status,
+                    f.status_bayar AS status_pembayaran,
+                    f.tanggal_lunas,
+                    f.bukti_pembayaran,
+                    u.nama_lengkap AS created_by,
+                    COUNT(ofa.id_obat_faktur) AS jumlah_item,
+                    COALESCE(SUM(ofa.total), 0) AS jumlah_harga
+                FROM faktur f
+                JOIN pbf p ON f.id_pbf = p.id_pbf
+                LEFT JOIN users u ON f.id_user = u.id_user
+                LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
         $params = [];
         $conditions = [];
-        
-        if ($status !== null && in_array($status, ['lunas', 'belum_lunas'])) {
-            $conditions[] = "pi.status = :status";
+
+        if ($status !== null && in_array($status, ['lunas', 'belum_lunas'], true)) {
+            $conditions[] = "f.status_bayar = :status";
             $params['status'] = $status;
         }
-        
         if ($bulan !== null && preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-            $conditions[] = "DATE_FORMAT(pi.tanggal_faktur, '%Y-%m') = :bulan";
+            $conditions[] = "DATE_FORMAT(f.tanggal_faktur, '%Y-%m') = :bulan";
             $params['bulan'] = $bulan;
         }
-        
         if ($search !== null && $search !== '') {
-            $conditions[] = "(pi.no_faktur LIKE :search OR pi.nama_pbf LIKE :search2)";
-            $params['search']  = "%$search%";
-            $params['search2'] = "%$search%";
+            $conditions[] = "(f.no_faktur LIKE :search_faktur OR p.nama_pbf LIKE :search_pbf OR ofa.nama_obat LIKE :search_obat)";
+            $likeSearch = "%$search%";
+            $params['search_faktur'] = $likeSearch;
+            $params['search_pbf'] = $likeSearch;
+            $params['search_obat'] = $likeSearch;
         }
-        
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
-        }
-        
-        $sql .= " ORDER BY pi.tanggal_jatuh_tempo DESC";
-        
+        if ($conditions) $sql .= " WHERE " . implode(' AND ', $conditions);
+
+        $sql .= " GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran, u.nama_lengkap
+                  ORDER BY f.tanggal_faktur DESC, f.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
-    
+
     public function findById(int $id): ?array {
-        $stmt = $this->db->prepare("SELECT pi.*, u.nama_lengkap AS created_by FROM piutang pi LEFT JOIN users u ON pi.id_user = u.id_user WHERE pi.id_piutang = :id LIMIT 1");
+        $stmt = $this->db->prepare(
+            "SELECT
+                f.id_faktur,
+                f.id_faktur AS id_piutang,
+                f.no_faktur,
+                p.nama_pbf,
+                f.tanggal_faktur,
+                f.tanggal_jatuh_tempo,
+                f.status_bayar AS status,
+                f.status_bayar AS status_pembayaran,
+                f.tanggal_lunas,
+                f.bukti_pembayaran,
+                COALESCE(SUM(ofa.total), 0) AS jumlah_harga
+             FROM faktur f
+             JOIN pbf p ON f.id_pbf = p.id_pbf
+             LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
+             WHERE f.id_faktur = :id
+             GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran
+             LIMIT 1"
+        );
         $stmt->execute(['id' => $id]);
         $result = $stmt->fetch();
         return $result ?: null;
     }
-    
-    public function create(array $data, int $userId): int {
-        $stmt = $this->db->prepare(
-            "INSERT INTO piutang (no_faktur, nama_pbf, tanggal_faktur, tanggal_jatuh_tempo, jumlah_harga, status, bukti_pembayaran, id_user) 
-             VALUES (:no_faktur, :nama_pbf, :tanggal_faktur, :tanggal_jatuh_tempo, :jumlah_harga, :status, :bukti, :id_user)"
-        );
-        $stmt->execute([
-            'no_faktur'           => $data['no_faktur'],
-            'nama_pbf'            => $data['nama_pbf'],
-            'tanggal_faktur'      => $data['tanggal_faktur'],
-            'tanggal_jatuh_tempo' => $data['tanggal_jatuh_tempo'],
-            'jumlah_harga'        => $data['jumlah_harga'],
-            'status'              => $data['status'] ?? 'belum_lunas',
-            'bukti'               => $data['bukti_pembayaran'] ?? null,
-            'id_user'             => $userId
-        ]);
-        return (int) $this->db->lastInsertId();
-    }
-    
-    public function update(int $id, array $data): bool {
-        $stmt = $this->db->prepare(
-            "UPDATE piutang SET 
-                no_faktur = :no_faktur, nama_pbf = :nama_pbf, tanggal_faktur = :tanggal_faktur,
-                tanggal_jatuh_tempo = :tanggal_jatuh_tempo, jumlah_harga = :jumlah_harga
-             WHERE id_piutang = :id"
-        );
-        return $stmt->execute([
-            'no_faktur'           => $data['no_faktur'],
-            'nama_pbf'            => $data['nama_pbf'],
-            'tanggal_faktur'      => $data['tanggal_faktur'],
-            'tanggal_jatuh_tempo' => $data['tanggal_jatuh_tempo'],
-            'jumlah_harga'        => $data['jumlah_harga'],
-            'id'                  => $id
-        ]);
-    }
-    
-    /**
-     * Lunasi piutang: set status lunas + tanggal + bukti pembayaran
-     */
+
     public function lunasi(int $id, ?string $buktiPath = null): bool {
         $stmt = $this->db->prepare(
-            "UPDATE piutang SET status = 'lunas', tanggal_lunas = CURDATE(), bukti_pembayaran = :bukti WHERE id_piutang = :id"
+            "UPDATE faktur
+             SET status_bayar = 'lunas', tanggal_lunas = CURDATE(), bukti_pembayaran = COALESCE(:bukti, bukti_pembayaran)
+             WHERE id_faktur = :id"
         );
         return $stmt->execute(['bukti' => $buktiPath, 'id' => $id]);
     }
-    
-    public function delete(int $id): bool {
-        $stmt = $this->db->prepare("DELETE FROM piutang WHERE id_piutang = :id");
+
+    public function belumLunas(int $id): bool {
+        $stmt = $this->db->prepare(
+            "UPDATE faktur
+             SET status_bayar = 'belum_lunas', tanggal_lunas = NULL, bukti_pembayaran = NULL
+             WHERE id_faktur = :id"
+        );
         return $stmt->execute(['id' => $id]);
     }
-    
-    /**
-     * Ringkasan total piutang per status
-     */
+
     public function getSummary(?string $bulan = null): array {
-        $sql = "SELECT 
+        $sql = "SELECT
                     COUNT(*) AS total_records,
-                    COALESCE(SUM(jumlah_harga), 0) AS total_semua,
-                    COALESCE(SUM(CASE WHEN status = 'lunas' THEN jumlah_harga ELSE 0 END), 0) AS total_lunas,
-                    COALESCE(SUM(CASE WHEN status = 'belum_lunas' THEN jumlah_harga ELSE 0 END), 0) AS total_belum_lunas,
-                    COUNT(CASE WHEN status = 'lunas' THEN 1 END) AS count_lunas,
-                    COUNT(CASE WHEN status = 'belum_lunas' THEN 1 END) AS count_belum_lunas
-                FROM piutang";
+                    COALESCE(SUM(total_faktur), 0) AS total_semua,
+                    COALESCE(SUM(CASE WHEN status_bayar = 'lunas' THEN total_faktur ELSE 0 END), 0) AS total_lunas,
+                    COALESCE(SUM(CASE WHEN status_bayar = 'belum_lunas' THEN total_faktur ELSE 0 END), 0) AS total_belum_lunas,
+                    COUNT(CASE WHEN status_bayar = 'lunas' THEN 1 END) AS count_lunas,
+                    COUNT(CASE WHEN status_bayar = 'belum_lunas' THEN 1 END) AS count_belum_lunas
+                FROM (
+                    SELECT f.id_faktur, f.status_bayar, f.tanggal_faktur, COALESCE(SUM(ofa.total), 0) AS total_faktur
+                    FROM faktur f
+                    LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
         $params = [];
-        
         if ($bulan !== null && preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-            $sql .= " WHERE DATE_FORMAT(tanggal_faktur, '%Y-%m') = :bulan";
+            $sql .= " WHERE DATE_FORMAT(f.tanggal_faktur, '%Y-%m') = :bulan";
             $params['bulan'] = $bulan;
         }
-        
+        $sql .= " GROUP BY f.id_faktur, f.status_bayar, f.tanggal_faktur) x";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetch();
     }
-    
-    /**
-     * Daftar bulan yang ada datanya (untuk filter dropdown)
-     */
+
     public function getAvailableMonths(): array {
         $stmt = $this->db->query(
-            "SELECT DISTINCT DATE_FORMAT(tanggal_faktur, '%Y-%m') AS bulan 
-             FROM piutang ORDER BY bulan DESC"
+            "SELECT DISTINCT DATE_FORMAT(tanggal_faktur, '%Y-%m') AS bulan
+             FROM faktur ORDER BY bulan DESC"
         );
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
-    
+
     public function count(): int {
-        return (int) $this->db->query("SELECT COUNT(*) FROM piutang")->fetchColumn();
+        return (int) $this->db->query("SELECT COUNT(*) FROM faktur")->fetchColumn();
     }
 }

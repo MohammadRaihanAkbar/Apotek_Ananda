@@ -124,6 +124,26 @@
         .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
         .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
+
+        /* Form & Utility */
+        .filter-bar { background: #fff; padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .tab-filter { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: #475569; text-decoration: none; font-size: 12px; font-weight: 600; }
+        .tab-filter.active, .tab-filter:hover { background: #eff6ff; color: var(--primary); border-color: #bfdbfe; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #475569; }
+        .form-control { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: #fff; color: #1e293b; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .modal-header h3 { font-family: 'Outfit', sans-serif; font-size: 20px; color: #1e293b; }
+        .modal-close { border: none; background: #f1f5f9; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 22px; line-height: 1; color: #64748b; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }

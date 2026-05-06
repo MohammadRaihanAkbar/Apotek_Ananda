@@ -1,13 +1,11 @@
 <?php
 /**
- * API Search Controller - Apotek Ananda Jadimulya
- * Endpoint untuk AJAX autocomplete (rekomendasi pencarian).
+ * API Search Controller - autocomplete.
  */
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../helpers/session_helper.php';
 
-// Cek autentikasi
 if (!isLoggedIn()) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
@@ -29,57 +27,29 @@ $results = [];
 
 try {
     $termLike = "%$term%";
-    
     switch ($type) {
         case 'stok_obat':
-            // Cari nama obat atau no faktur di stok_masuk
-            $stmt = $db->prepare("
-                SELECT DISTINCT nama_obat AS label, nama_obat AS value 
-                FROM stok_masuk 
-                WHERE nama_obat LIKE :term 
-                UNION 
-                SELECT DISTINCT no_faktur AS label, no_faktur AS value 
-                FROM stok_masuk 
-                WHERE no_faktur LIKE :term
-                LIMIT 10
-            ");
+            $stmt = $db->prepare("SELECT DISTINCT nama_obat AS label, nama_obat AS value FROM obat_faktur WHERE nama_obat LIKE :term
+                                  UNION SELECT DISTINCT no_faktur AS label, no_faktur AS value FROM faktur WHERE no_faktur LIKE :term LIMIT 10");
             $stmt->execute(['term' => $termLike]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             break;
-            
         case 'piutang':
-            // Cari no faktur atau nama pbf di piutang
-            $stmt = $db->prepare("
-                SELECT DISTINCT no_faktur AS label, no_faktur AS value 
-                FROM piutang 
-                WHERE no_faktur LIKE :term 
-                UNION 
-                SELECT DISTINCT nama_pbf AS label, nama_pbf AS value 
-                FROM piutang 
-                WHERE nama_pbf LIKE :term
-                LIMIT 10
-            ");
+            $stmt = $db->prepare("SELECT DISTINCT f.no_faktur AS label, f.no_faktur AS value FROM faktur f WHERE f.no_faktur LIKE :term
+                                  UNION SELECT DISTINCT p.nama_pbf AS label, p.nama_pbf AS value FROM faktur f JOIN pbf p ON f.id_pbf = p.id_pbf WHERE p.nama_pbf LIKE :term LIMIT 10");
             $stmt->execute(['term' => $termLike]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             break;
-            
         case 'expired':
-            // Cari nama obat di obat_expired atau stok_masuk
-            $stmt = $db->prepare("
-                SELECT DISTINCT nama_obat AS label, nama_obat AS value 
-                FROM obat_expired 
-                WHERE nama_obat LIKE :term 
-                UNION 
-                SELECT DISTINCT nama_obat AS label, nama_obat AS value 
-                FROM stok_masuk 
-                WHERE nama_obat LIKE :term
-                LIMIT 10
-            ");
+            $stmt = $db->prepare("SELECT DISTINCT ofa.nama_obat AS label, ofa.nama_obat AS value
+                                  FROM obat_faktur ofa
+                                  JOIN obat_batch ob ON ofa.id_obat_faktur = ob.id_obat_faktur
+                                  WHERE ofa.nama_obat LIKE :term
+                                  LIMIT 10");
             $stmt->execute(['term' => $termLike]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             break;
     }
-    
     echo json_encode($results);
 } catch (PDOException $e) {
     http_response_code(500);

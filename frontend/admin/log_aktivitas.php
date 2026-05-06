@@ -16,6 +16,7 @@ $actions = getLogActions();
 $flash = getFlashMessage();
 
 // Active filters
+$filterRole = $_GET['role'] ?? '';
 $filterDate = $_GET['date'] ?? '';
 $filterAksi = $_GET['aksi'] ?? '';
 
@@ -24,7 +25,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
 
 <div class="page-header">
     <h1>Log Aktivitas</h1>
-    <p>Pantau jejak aktivitas Anda dalam sistem.</p>
+    <p>Pantau jejak aktivitas semua pengguna dalam sistem.</p>
 </div>
 
 <?php if ($flash): ?>
@@ -33,6 +34,15 @@ require_once __DIR__ . '/../templates/sidebar.php';
 
 <!-- Log Filter Cards -->
 <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 150px; gap: 20px; margin-bottom: 30px;">
+    <div class="card" style="margin-bottom:0; padding: 15px 20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Filter Peran</label>
+        <select name="role" class="form-control" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
+            <option value="">Semua Role</option>
+            <option value="super_admin" <?= $filterRole === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
+            <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Admin</option>
+        </select>
+    </div>
+
     <div class="card" style="margin-bottom:0; padding: 15px 20px;">
         <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Rentang Waktu</label>
         <input type="date" name="date" class="form-control" value="<?= $filterDate ?>" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
@@ -82,7 +92,9 @@ require_once __DIR__ . '/../templates/sidebar.php';
                             <div style="font-weight:600; color:#1e293b;"><?= htmlspecialchars($log['nama_lengkap']) ?></div>
                         </td>
                         <td>
-                            <span class="badge badge-success" style="font-size:10px;">Admin</span>
+                            <span class="badge <?= $log['role'] === 'super_admin' ? 'badge-info' : 'badge-success' ?>" style="font-size:10px;">
+                                <?= $log['role'] === 'super_admin' ? 'Super Admin' : 'Admin' ?>
+                            </span>
                         </td>
                         <td>
                             <div style="display:flex; align-items:center; gap:8px; font-weight:600; color: var(--success);">

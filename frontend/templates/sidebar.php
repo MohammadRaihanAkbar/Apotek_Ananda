@@ -20,12 +20,18 @@ $fullName = getCurrentNamaLengkap() ?? 'User';
             Dashboard
         </a>
         
-        <a href="<?= BASE_URL ?>/frontend/<?= $roleFolder ?>/manajemen_stok.php" class="<?= $currentPage === 'manajemen_stok' ? 'active' : '' ?>">
+        <a href="<?= BASE_URL ?>/frontend/<?= $roleFolder ?>/manajemen_stok.php" class="<?= in_array($currentPage, ['manajemen_stok','tambah_faktur','detail_faktur']) ? 'active' : '' ?>">
             <span class="material-icons-round">inventory_2</span>
             Manajemen Stok
         </a>
         
         <?php if (isSuperAdmin()): ?>
+        <a href="<?= BASE_URL ?>/frontend/superadmin/pbf.php" class="<?= $currentPage === 'pbf' ? 'active' : '' ?>">
+            <span class="material-icons-round">local_shipping</span>
+            Manajemen PBF
+        </a>
+        
+
         <a href="<?= BASE_URL ?>/frontend/superadmin/laporan_expired.php" class="<?= $currentPage === 'laporan_expired' ? 'active' : '' ?>">
             <span class="material-icons-round">event_busy</span>
             Laporan Kadaluwarsa

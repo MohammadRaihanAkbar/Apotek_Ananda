@@ -1,176 +1,107 @@
 <?php
 /**
- * Model: Obat Expired - Apotek Ananda Jadimulya
- * Query layer untuk tabel `obat_expired` (input manual).
+ * Model: Laporan Expired - otomatis dari obat_batch.
  */
 
 require_once __DIR__ . '/../config/database.php';
 
 class ObatExpired {
     private PDO $db;
-    
+
     public function __construct() {
         $this->db = getDBConnection();
     }
-    
-    /**
-     * Ambil semua data obat expired (input manual)
-     */
-    public function getAll(?string $search = null): array {
-        $sql = "SELECT oe.*, u.nama_lengkap AS created_by 
-                FROM obat_expired oe 
-                LEFT JOIN users u ON oe.id_user = u.id_user";
+
+    public function getExpiredReport(array $filters = []): array {
+        $sql = "SELECT
+                    MIN(ob.id_batch) AS id_batch,
+                    ofa.id_obat_faktur,
+                    ofa.nama_obat,
+                    ofa.jenis_obat,
+                    ofa.satuan,
+                    ofa.harga_beli,
+                    COUNT(ob.id_batch) AS qty,
+                    ob.no_batch AS batch,
+                    ob.expired_date,
+                    DATEDIFF(ob.expired_date, CURDATE()) AS sisa_hari,
+                    p.nama_pbf,
+                    f.no_faktur,
+                    f.tanggal_faktur,
+                    f.tanggal_masuk,
+                    'otomatis' AS sumber
+                FROM obat_batch ob
+                JOIN obat_faktur ofa ON ob.id_obat_faktur = ofa.id_obat_faktur
+                JOIN faktur f ON ofa.id_faktur = f.id_faktur
+                JOIN pbf p ON f.id_pbf = p.id_pbf";
         $params = [];
-        
-        if ($search !== null && $search !== '') {
-            $sql .= " WHERE (oe.nama_obat LIKE :search OR oe.nama_pbf LIKE :search2 OR oe.batch LIKE :search3)";
-            $params['search']  = "%$search%";
-            $params['search2'] = "%$search%";
-            $params['search3'] = "%$search%";
+        $conditions = [];
+
+        // Default otomatis: semua batch yang sudah expired atau akan expired <= 6 bulan dari hari ini.
+        $conditions[] = "ob.expired_date <= DATE_ADD(CURDATE(), INTERVAL 6 MONTH)";
+
+        if (!empty($filters['pbf_id'])) {
+            $conditions[] = "f.id_pbf = :pbf_id";
+            $params['pbf_id'] = (int) $filters['pbf_id'];
         }
-        
-        $sql .= " ORDER BY oe.expired_date ASC";
-        
+
+        if (!empty($filters['nama_obat'])) {
+            $conditions[] = "ofa.nama_obat LIKE :nama_obat";
+            $params['nama_obat'] = '%' . $filters['nama_obat'] . '%';
+        }
+
+        if (!empty($filters['date_start']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filters['date_start'])) {
+            $conditions[] = "ob.expired_date >= :date_start";
+            $params['date_start'] = $filters['date_start'];
+        }
+
+        if (!empty($filters['date_end']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filters['date_end'])) {
+            $conditions[] = "ob.expired_date <= :date_end";
+            $params['date_end'] = $filters['date_end'];
+        }
+
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'expired') {
+                $conditions[] = "ob.expired_date < CURDATE()";
+            } elseif ($filters['status'] === 'segera_expired') {
+                $conditions[] = "ob.expired_date >= CURDATE()";
+            }
+        }
+
+        $sql .= " WHERE " . implode(' AND ', $conditions);
+        $sql .= " GROUP BY ofa.id_obat_faktur, ofa.nama_obat, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ob.no_batch, ob.expired_date, p.nama_pbf, f.no_faktur, f.tanggal_faktur, f.tanggal_masuk
+                  ORDER BY ob.expired_date ASC, ofa.nama_obat ASC";
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
-    
-    /**
-     * Cari berdasarkan ID
-     */
-    public function findById(int $id): ?array {
-        $stmt = $this->db->prepare(
-            "SELECT oe.*, u.nama_lengkap AS created_by 
-             FROM obat_expired oe 
-             LEFT JOIN users u ON oe.id_user = u.id_user 
-             WHERE oe.id_expired = :id LIMIT 1"
-        );
-        $stmt->execute(['id' => $id]);
-        $result = $stmt->fetch();
-        return $result ?: null;
-    }
-    
-    /**
-     * Tambah data expired manual
-     */
-    public function create(array $data, int $userId): int {
-        $stmt = $this->db->prepare(
-            "INSERT INTO obat_expired (nama_obat, qty, satuan, batch, expired_date, harga_beli, nama_pbf, id_user) 
-             VALUES (:nama_obat, :qty, :satuan, :batch, :expired_date, :harga_beli, :nama_pbf, :id_user)"
-        );
-        $stmt->execute([
-            'nama_obat'    => $data['nama_obat'],
-            'qty'          => $data['qty'],
-            'satuan'       => $data['satuan'],
-            'batch'        => $data['batch'] ?? null,
-            'expired_date' => $data['expired_date'],
-            'harga_beli'   => $data['harga_beli'],
-            'nama_pbf'     => $data['nama_pbf'] ?? null,
-            'id_user'      => $userId
-        ]);
-        return (int) $this->db->lastInsertId();
-    }
-    
-    /**
-     * Update data expired manual
-     */
-    public function update(int $id, array $data): bool {
-        $stmt = $this->db->prepare(
-            "UPDATE obat_expired SET 
-                nama_obat = :nama_obat, qty = :qty, satuan = :satuan, batch = :batch,
-                expired_date = :expired_date, harga_beli = :harga_beli, nama_pbf = :nama_pbf
-             WHERE id_expired = :id"
-        );
-        return $stmt->execute([
-            'nama_obat'    => $data['nama_obat'],
-            'qty'          => $data['qty'],
-            'satuan'       => $data['satuan'],
-            'batch'        => $data['batch'] ?? null,
-            'expired_date' => $data['expired_date'],
-            'harga_beli'   => $data['harga_beli'],
-            'nama_pbf'     => $data['nama_pbf'] ?? null,
-            'id'           => $id
-        ]);
-    }
-    
-    /**
-     * Hapus data expired
-     */
-    public function delete(int $id): bool {
-        $stmt = $this->db->prepare("DELETE FROM obat_expired WHERE id_expired = :id");
-        return $stmt->execute(['id' => $id]);
-    }
-    
-    /**
-     * Laporan gabungan: data manual + otomatis dari stok_masuk (<= 6 bulan)
-     */
+
     public function getCombinedExpiredReport(?string $search = null): array {
-        $sql = "
-            SELECT 'manual' AS sumber, oe.nama_obat, oe.qty, oe.satuan, oe.batch, 
-                   oe.expired_date, oe.harga_beli, oe.nama_pbf, oe.id_expired AS id, NULL AS id_masuk
-            FROM obat_expired oe
-        ";
-        
-        $sql .= " UNION ALL ";
-        
-        $sql .= "
-            SELECT 'otomatis' AS sumber, sm.nama_obat, sm.jumlah_masuk AS qty, sm.satuan, sm.batch,
-                   sm.expired_date, sm.harga_beli, p.nama_pbf, NULL AS id, sm.id_masuk
-            FROM stok_masuk sm 
-            JOIN pbf p ON sm.id_pbf = p.id_pbf 
-            WHERE sm.expired_date <= DATE_ADD(CURDATE(), INTERVAL 6 MONTH)
-        ";
-        
-        if ($search !== null && $search !== '') {
-            // Wrap in subquery for search
-            $sql = "SELECT * FROM ($sql) AS combined 
-                    WHERE nama_obat LIKE :search OR nama_pbf LIKE :search2
-                    ORDER BY expired_date ASC";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute(['search' => "%$search%", 'search2' => "%$search%"]);
-        } else {
-            $sql = "SELECT * FROM ($sql) AS combined ORDER BY expired_date ASC";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-        }
-        
-        return $stmt->fetchAll();
-    }
-    
-    public function count(): int {
-        return (int) $this->db->query("SELECT COUNT(*) FROM obat_expired")->fetchColumn();
+        return $this->getExpiredReport(['nama_obat' => $search]);
     }
 
-    /**
-     * Statistik ringkasan untuk dashboard laporan kadaluwarsa
-     */
-    public function getSummaryStats(): array {
-        // Gabungan data untuk statistik
-        $data = $this->getCombinedExpiredReport();
-        
+    public function getSummaryStats(array $filters = []): array {
+        $data = $this->getExpiredReport($filters);
         $stats = [
             'expired_count' => 0,
-            'nearing_count' => 0,
-            'potential_loss' => 0
+            'six_month_count' => 0,
+            'potential_loss' => 0,
         ];
-        
-        $today = new DateTime();
-        $nearingDate = (new DateTime())->modify('+30 days');
-        
+
         foreach ($data as $item) {
-            $expDate = new DateTime($item['expired_date']);
-            
-            if ($expDate <= $today) {
-                $stats['expired_count']++;
-            } elseif ($expDate <= $nearingDate) {
-                $stats['nearing_count']++;
+            if ((int)$item['sisa_hari'] < 0) {
+                $stats['expired_count'] += (int)$item['qty'];
+            } else {
+                $stats['six_month_count'] += (int)$item['qty'];
             }
-            
-            // Potential loss dihitung dari barang yang sudah expired atau hampir expired (6 bulan kedepan)
-            $stats['potential_loss'] += ($item['qty'] * $item['harga_beli']);
+            $stats['potential_loss'] += ((int)$item['qty'] * (float)$item['harga_beli']);
         }
-        
         return $stats;
+    }
+
+    public function count(): int {
+        return (int) $this->db->query(
+            "SELECT COUNT(*) FROM obat_batch WHERE expired_date <= DATE_ADD(CURDATE(), INTERVAL 6 MONTH)"
+        )->fetchColumn();
     }
 }

@@ -10,7 +10,7 @@
 // KONFIGURASI DATABASE
 // =============================================
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'apotek_ananda');
+define('DB_NAME', 'apotek_ananda3');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');

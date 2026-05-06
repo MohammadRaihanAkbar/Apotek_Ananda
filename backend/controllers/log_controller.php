@@ -17,11 +17,21 @@ requireLogin();
  */
 function getLogData(): array {
     $logModel = new LogAktivitas();
-    
+
     $role = $_GET['role'] ?? null;
+    if (!in_array($role, ['super_admin', 'admin'], true)) {
+        $role = null;
+    }
+
     $date = $_GET['date'] ?? null;
+    if ($date !== null && $date !== '' && !isValidDate($date)) {
+        $date = null;
+    }
+
     $aksi = $_GET['aksi'] ?? null;
-    
+    $aksi = $aksi !== null && $aksi !== '' ? sanitize($aksi) : null;
+
+    // Revisi: Admin juga bisa melihat log semua role, bukan hanya log dirinya sendiri.
     return $logModel->getAll(null, $role, $date, $aksi);
 }
 
