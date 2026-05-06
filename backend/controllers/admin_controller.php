@@ -61,11 +61,11 @@ function handleCreate(): void {
     
     if ($userModel->createAdmin($namaLengkap, $username, $password)) {
         $logModel = new LogAktivitas();
-        $logModel->catat(getCurrentUserId(), 'Tambah Akun Admin', 
-            "Menambahkan akun admin baru: {$namaLengkap} ({$username})");
-        setFlashMessage('success', "Akun admin '{$namaLengkap}' berhasil ditambahkan.");
+        $logModel->catat(getCurrentUserId(), 'Tambah Akun Staff', 
+            "Menambahkan akun staff baru: {$namaLengkap} ({$username})");
+        setFlashMessage('success', "Akun staff '{$namaLengkap}' berhasil ditambahkan.");
     } else {
-        setFlashMessage('error', 'Gagal menambahkan akun admin.');
+        setFlashMessage('error', 'Gagal menambahkan akun staff.');
     }
     
     redirect(BASE_URL . '/frontend/superadmin/kelola_admin.php');
@@ -115,11 +115,11 @@ function handleUpdate(): void {
     
     if ($userModel->updateAdmin($id, $namaLengkap, $username, $passwordToUpdate)) {
         $logModel = new LogAktivitas();
-        $logModel->catat(getCurrentUserId(), 'Edit Akun Admin', 
-            "Mengubah akun admin ID {$id}: {$namaLengkap} ({$username})");
-        setFlashMessage('success', 'Data admin berhasil diperbarui.');
+        $logModel->catat(getCurrentUserId(), 'Edit Akun Staff', 
+            "Mengubah akun staff ID {$id}: {$namaLengkap} ({$username})");
+        setFlashMessage('success', 'Data staff berhasil diperbarui.');
     } else {
-        setFlashMessage('error', 'Gagal memperbarui data admin.');
+        setFlashMessage('error', 'Gagal memperbarui data staff.');
     }
     
     redirect(BASE_URL . '/frontend/superadmin/kelola_admin.php');
@@ -156,11 +156,11 @@ function handleDelete(): void {
     
     if ($userModel->deleteAdmin($id)) {
         $logModel = new LogAktivitas();
-        $logModel->catat(getCurrentUserId(), 'Hapus Akun Admin', 
-            "Menghapus akun admin: {$admin['nama_lengkap']} ({$admin['username']})");
-        setFlashMessage('success', "Akun admin '{$admin['nama_lengkap']}' berhasil dihapus.");
+        $logModel->catat(getCurrentUserId(), 'Hapus Akun Staff', 
+            "Menghapus akun staff: {$admin['nama_lengkap']} ({$admin['username']})");
+        setFlashMessage('success', "Akun staff '{$admin['nama_lengkap']}' berhasil dihapus.");
     } else {
-        setFlashMessage('error', 'Gagal menghapus akun admin.');
+        setFlashMessage('error', 'Gagal menghapus akun staff.');
     }
     
     redirect(BASE_URL . '/frontend/superadmin/kelola_admin.php');

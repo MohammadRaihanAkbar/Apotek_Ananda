@@ -58,11 +58,9 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
                             <?php if (empty($item['batches'])): ?>
                                 <span style="color:#94a3b8">-</span>
                             <?php else: ?>
-                                <ol style="margin:0;padding-left:18px;font-size:12px;">
-                                    <?php foreach ($item['batches'] as $b): ?>
-                                        <li><code><?= htmlspecialchars($b['no_batch']) ?></code> — <?= htmlspecialchars($b['expired_date']) ?></li>
-                                    <?php endforeach; ?>
-                                </ol>
+                                <button class="btn btn-outline btn-sm" onclick="showBatchDetail('<?= htmlspecialchars($item['nama_obat'], ENT_QUOTES) ?>', <?= htmlspecialchars(json_encode($item['batches']), ENT_QUOTES) ?>)">
+                                    📋 Detail (<?= count($item['batches']) ?>)
+                                </button>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -71,3 +69,40 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
         </table>
     </div>
 </div>
+
+<!-- Modal Batch & Expired Detail -->
+<div class="modal-overlay" id="modalBatchDetail">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="batchModalTitle">Batch & Expired</h3>
+            <button class="modal-close" onclick="closeModal('modalBatchDetail')">&times;</button>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>No. Batch</th>
+                        <th>Expired Date</th>
+                    </tr>
+                </thead>
+                <tbody id="batchModalBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function showBatchDetail(namaObat, batches) {
+    document.getElementById('batchModalTitle').textContent = 'Batch & Expired — ' + namaObat;
+    const tbody = document.getElementById('batchModalBody');
+    tbody.innerHTML = '';
+    batches.forEach(function(b, idx) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (idx + 1) + '</td><td><code>' + (b.no_batch || '-') + '</code></td><td>' + (b.expired_date || '-') + '</td>';
+        tbody.appendChild(tr);
+    });
+    openModal('modalBatchDetail');
+}
+document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)closeModal(el.id)})});
+</script>

@@ -20,6 +20,13 @@ function closeModal(id) {
     if (modal) modal.classList.remove('active');
 }
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+}
+
 // Global confirm for delete actions
 document.querySelectorAll('form[onsubmit*="confirm"]').forEach(form => {
     form.addEventListener('submit', function(e) {

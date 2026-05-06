@@ -32,9 +32,9 @@ class LogAktivitas {
      * Ambil semua log aktivitas dengan filter
      */
     public function getAll(?int $limit = null, ?string $role = null, ?string $date = null, ?string $aksi = null): array {
-        $sql = "SELECT la.*, u.nama_lengkap, u.role 
+        $sql = "SELECT la.*, COALESCE(u.nama_lengkap, '(User dihapus)') AS nama_lengkap, COALESCE(u.role, 'unknown') AS role 
                 FROM log_aktivitas la 
-                JOIN users u ON la.id_user = u.id_user";
+                LEFT JOIN users u ON la.id_user = u.id_user";
         
         $params = [];
         $conditions = [];
@@ -82,9 +82,9 @@ class LogAktivitas {
      * Ambil log berdasarkan user tertentu
      */
     public function getByUser(int $userId, ?int $limit = null): array {
-        $sql = "SELECT la.*, u.nama_lengkap, u.role 
+        $sql = "SELECT la.*, COALESCE(u.nama_lengkap, '(User dihapus)') AS nama_lengkap, COALESCE(u.role, 'unknown') AS role 
                 FROM log_aktivitas la 
-                JOIN users u ON la.id_user = u.id_user 
+                LEFT JOIN users u ON la.id_user = u.id_user 
                 WHERE la.id_user = :uid 
                 ORDER BY la.created_at DESC";
         

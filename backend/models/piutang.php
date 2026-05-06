@@ -12,6 +12,50 @@ class Piutang {
         $this->db = getDBConnection();
     }
 
+    /**
+     * Get piutang filtered by status (belum_lunas / lunas) with optional search.
+     * Ordered by created_at DESC (last-input-first).
+     */
+    public function getAllByStatus(string $status, ?string $search = null): array {
+        $sql = "SELECT
+                    f.id_faktur,
+                    f.id_faktur AS id_piutang,
+                    f.no_faktur,
+                    p.nama_pbf,
+                    f.tanggal_faktur,
+                    f.tanggal_jatuh_tempo,
+                    f.status_bayar AS status,
+                    f.status_bayar AS status_pembayaran,
+                    f.tanggal_lunas,
+                    f.bukti_pembayaran,
+                    u.nama_lengkap AS created_by,
+                    COUNT(ofa.id_obat_faktur) AS jumlah_item,
+                    COALESCE(SUM(ofa.total), 0) AS jumlah_harga
+                FROM faktur f
+                JOIN pbf p ON f.id_pbf = p.id_pbf
+                LEFT JOIN users u ON f.id_user = u.id_user
+                LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
+                WHERE f.status_bayar = :status";
+        $params = ['status' => $status];
+
+        if ($search !== null && $search !== '') {
+            $sql .= " AND (f.no_faktur LIKE :search_faktur OR p.nama_pbf LIKE :search_pbf OR ofa.nama_obat LIKE :search_obat)";
+            $likeSearch = "%$search%";
+            $params['search_faktur'] = $likeSearch;
+            $params['search_pbf'] = $likeSearch;
+            $params['search_obat'] = $likeSearch;
+        }
+
+        $sql .= " GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran, u.nama_lengkap
+                  ORDER BY f.created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Legacy getAll — still available for export or other uses.
+     */
     public function getAll(?string $status = null, ?string $bulan = null, ?string $search = null): array {
         $sql = "SELECT
                     f.id_faktur,
@@ -52,7 +96,7 @@ class Piutang {
         if ($conditions) $sql .= " WHERE " . implode(' AND ', $conditions);
 
         $sql .= " GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran, u.nama_lengkap
-                  ORDER BY f.tanggal_faktur DESC, f.created_at DESC";
+                  ORDER BY f.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -102,7 +146,7 @@ class Piutang {
         return $stmt->execute(['id' => $id]);
     }
 
-    public function getSummary(?string $bulan = null): array {
+    public function getSummary(): array {
         $sql = "SELECT
                     COUNT(*) AS total_records,
                     COALESCE(SUM(total_faktur), 0) AS total_semua,
@@ -113,15 +157,10 @@ class Piutang {
                 FROM (
                     SELECT f.id_faktur, f.status_bayar, f.tanggal_faktur, COALESCE(SUM(ofa.total), 0) AS total_faktur
                     FROM faktur f
-                    LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
-        $params = [];
-        if ($bulan !== null && preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-            $sql .= " WHERE DATE_FORMAT(f.tanggal_faktur, '%Y-%m') = :bulan";
-            $params['bulan'] = $bulan;
-        }
-        $sql .= " GROUP BY f.id_faktur, f.status_bayar, f.tanggal_faktur) x";
+                    LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
+                    GROUP BY f.id_faktur, f.status_bayar, f.tanggal_faktur) x";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute();
         return $stmt->fetch();
     }
 

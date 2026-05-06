@@ -16,14 +16,14 @@ requireLogin();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 switch ($action) {
-    case 'create_faktur': handleCreateFaktur(); break;
-    case 'update_faktur': handleUpdateFaktur(); break;
-    case 'delete_faktur': handleDeleteFaktur(); break;
+    case 'create_faktur':
+    case 'create':        handleCreateFaktur(); break;
+    case 'update_faktur':
+    case 'update':        handleUpdateFaktur(); break;
+    case 'delete_faktur':
+    case 'delete':        handleDeleteFaktur(); break;
     case 'detail':        handleDetail(); break;
     case 'update_batch':  handleUpdateBatch(); break;
-    case 'create':        handleCreateFaktur(); break;
-    case 'update':        handleUpdateFaktur(); break;
-    case 'delete':        handleDeleteFaktur(); break;
     default: redirect(getRedirectUrl()); break;
 }
 

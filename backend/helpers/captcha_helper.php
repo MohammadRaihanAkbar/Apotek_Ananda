@@ -2,32 +2,55 @@
 /**
  * CAPTCHA Helper - Apotek Ananda Jadimulya
  * 
- * Menggunakan PHP GD Library untuk generate CAPTCHA image.
- * CAPTCHA diterapkan pada halaman login untuk mencegah brute-force attack.
+ * Math CAPTCHA sederhana (e.g. "3 + 5 = ?").
+ * Tidak memerlukan GD Library.
  */
 
 /**
- * Generate kode CAPTCHA acak (huruf + angka, tanpa karakter ambigu)
- * 
- * @param int $length Panjang kode
- * @return string Kode CAPTCHA
+ * Generate soal math CAPTCHA (dua angka 1-9, operator + atau -)
+ * Simpan jawaban di session, return soal sebagai string.
+ *
+ * @return array ['question' => string, 'answer' => int]
  */
-function generateCaptchaCode(int $length = 5): string {
-    // Hindari karakter yang mirip: 0/O, 1/I/l, 2/Z, 5/S, 8/B
-    $characters = 'ABCDEFGHJKLMNPQRTUVWXY3467';
-    $code = '';
-    $max = strlen($characters) - 1;
+function generateMathCaptcha(): array {
+    $a = random_int(1, 9);
+    $b = random_int(1, 9);
     
-    for ($i = 0; $i < $length; $i++) {
-        $code .= $characters[random_int(0, $max)];
+    // Gunakan penjumlahan atau pengurangan
+    $ops = ['+', '-'];
+    $op = $ops[random_int(0, 1)];
+    
+    if ($op === '-' && $a < $b) {
+        // Pastikan hasil tidak negatif
+        [$a, $b] = [$b, $a];
     }
     
-    return $code;
+    $answer = ($op === '+') ? ($a + $b) : ($a - $b);
+    $question = "{$a} {$op} {$b} = ?";
+    
+    return ['question' => $question, 'answer' => $answer];
 }
 
 /**
- * Simpan kode CAPTCHA ke session
- * 
+ * Generate dan simpan CAPTCHA ke session, return soal.
+ *
+ * @return string Soal CAPTCHA (e.g. "3 + 5 = ?")
+ */
+function generateAndStoreCaptcha(): string {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $captcha = generateMathCaptcha();
+    $_SESSION['captcha_code'] = (string) $captcha['answer'];
+    $_SESSION['captcha_time'] = time();
+    
+    return $captcha['question'];
+}
+
+/**
+ * Simpan kode CAPTCHA ke session (legacy compatibility)
+ *
  * @param string $code Kode CAPTCHA
  */
 function storeCaptchaCode(string $code): void {
@@ -39,8 +62,8 @@ function storeCaptchaCode(string $code): void {
 }
 
 /**
- * Validasi input CAPTCHA terhadap kode di session
- * 
+ * Validasi input CAPTCHA terhadap jawaban di session
+ *
  * @param string $input Input user
  * @return bool True jika cocok
  */
@@ -63,7 +86,7 @@ function validateCaptcha(string $input): bool {
         return false;
     }
     
-    $valid = strtoupper(trim($input)) === $_SESSION['captcha_code'];
+    $valid = trim($input) === $_SESSION['captcha_code'];
     
     // Hapus CAPTCHA setelah validasi (one-time use)
     unset($_SESSION['captcha_code'], $_SESSION['captcha_time']);
@@ -72,86 +95,17 @@ function validateCaptcha(string $input): bool {
 }
 
 /**
- * Generate CAPTCHA image menggunakan GD Library
- * Output langsung sebagai PNG image
+ * API endpoint: return JSON with new captcha question.
+ * Called via AJAX for refresh.
  */
-function renderCaptchaImage(): void {
+function apiRefreshCaptcha(): void {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     
-    $code = generateCaptchaCode(5);
-    storeCaptchaCode($code);
-    
-    $width = 180;
-    $height = 60;
-    
-    // Buat canvas
-    $image = imagecreatetruecolor($width, $height);
-    
-    // Anti-aliasing
-    imageantialias($image, true);
-    
-    // Warna
-    $bgColor     = imagecolorallocate($image, 240, 244, 248);   // Light gray
-    $textColor   = imagecolorallocate($image, 44, 62, 80);       // Dark blue
-    $noiseColor1 = imagecolorallocate($image, 100, 149, 237);    // Cornflower
-    $noiseColor2 = imagecolorallocate($image, 170, 180, 190);    // Gray
-    $lineColor   = imagecolorallocate($image, 52, 152, 219);     // Blue
-    
-    // Fill background
-    imagefilledrectangle($image, 0, 0, $width, $height, $bgColor);
-    
-    // Tambah garis acak (noise)
-    for ($i = 0; $i < 6; $i++) {
-        $color = ($i % 2 === 0) ? $noiseColor1 : $lineColor;
-        imageline($image, 
-            random_int(0, $width), random_int(0, $height),
-            random_int(0, $width), random_int(0, $height),
-            $color
-        );
-    }
-    
-    // Tambah titik acak (noise)
-    for ($i = 0; $i < 100; $i++) {
-        imagesetpixel($image, 
-            random_int(0, $width), 
-            random_int(0, $height), 
-            $noiseColor2
-        );
-    }
-    
-    // Render teks CAPTCHA karakter per karakter
-    $fontSize = 5; // Built-in font size (1-5)
-    $charWidth = imagefontwidth($fontSize);
-    $charHeight = imagefontheight($fontSize);
-    $textWidth = $charWidth * strlen($code);
-    $startX = ($width - $textWidth) / 2;
-    $startY = ($height - $charHeight) / 2;
-    
-    for ($i = 0; $i < strlen($code); $i++) {
-        $x = $startX + ($i * $charWidth) + random_int(-2, 2);
-        $y = $startY + random_int(-5, 5);
-        
-        // Warna bervariasi per karakter
-        $r = random_int(20, 80);
-        $g = random_int(20, 80);
-        $b = random_int(80, 160);
-        $charColor = imagecolorallocate($image, $r, $g, $b);
-        
-        imagechar($image, $fontSize, (int)$x, (int)$y, $code[$i], $charColor);
-    }
-    
-    // Tambah border halus
-    $borderColor = imagecolorallocate($image, 189, 195, 199);
-    imagerectangle($image, 0, 0, $width - 1, $height - 1, $borderColor);
-    
-    // Output image
-    header('Content-Type: image/png');
+    $question = generateAndStoreCaptcha();
+    header('Content-Type: application/json');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header('Expires: 0');
-    
-    imagepng($image);
-    imagedestroy($image);
+    echo json_encode(['question' => $question]);
+    exit;
 }

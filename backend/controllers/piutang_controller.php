@@ -117,7 +117,9 @@ function handleUploadBukti() {
     }
     $uploadDir = __DIR__ . '/../../uploads/bukti_pembayaran/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    // Derive extension from validated MIME type, not user filename
+    $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'application/pdf' => 'pdf'];
+    $ext = $extMap[$mimeType] ?? pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'bukti_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
     $filepath = $uploadDir . $filename;
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
@@ -148,7 +150,7 @@ function handleExportPDF(): void {
     $search = isset($_GET['search']) ? sanitize($_GET['search']) : null;
     $model = new Piutang();
     $data = $model->getAll($status, $bulan, $search);
-    $summary = $model->getSummary($bulan);
+    $summary = $model->getSummary();
     $headers = ['No', 'No. Faktur', 'Nama PBF', 'Tgl Faktur', 'Jatuh Tempo', 'Total Faktur', 'Status', 'Tgl Lunas'];
     $rows = [];
     $no = 1;

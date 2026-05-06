@@ -8,7 +8,7 @@ $role = getCurrentRole();
 $roleFolder = $role === 'super_admin' ? 'superadmin' : 'admin';
 $fullName = getCurrentNamaLengkap() ?? 'User';
 ?>
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="logo-text">APOTEK <span>ANANDA</span></div>
         <div class="logo-sub">Group Jadimulya</div>
@@ -61,7 +61,7 @@ $fullName = getCurrentNamaLengkap() ?? 'User';
             </div>
             <div class="user-info">
                 <div class="name"><?= htmlspecialchars($fullName) ?></div>
-                <div class="role"><?= $role === 'super_admin' ? 'Super Admin' : 'Admin' ?></div>
+                <div class="role"><?= $role === 'super_admin' ? 'Admin' : 'Staff' ?></div>
             </div>
         </div>
         <a href="<?= BASE_URL ?>/logout.php" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; color: var(--danger);">
@@ -71,15 +71,22 @@ $fullName = getCurrentNamaLengkap() ?? 'User';
     </div>
 </aside>
 
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
 <div class="wrapper">
     <header class="top-bar">
+        <!-- Hamburger menu for mobile -->
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu">
+            <span class="material-icons-round">menu</span>
+        </button>
         <div style="flex:1;"></div>
         
         <div class="top-bar-right">
             <div class="user-profile-top">
                 <div class="info">
                     <div class="user-name"><?= htmlspecialchars($fullName) ?></div>
-                    <div class="user-role"><?= $role === 'super_admin' ? 'Super Admin' : 'Admin' ?></div>
+                    <div class="user-role"><?= $role === 'super_admin' ? 'Admin' : 'Staff' ?></div>
                 </div>
                 <img src="https://ui-avatars.com/api/?name=<?= urlencode($fullName) ?>&background=eff6ff&color=2563eb&bold=true" class="user-avatar-top" alt="Avatar">
             </div>

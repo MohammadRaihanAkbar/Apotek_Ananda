@@ -226,7 +226,7 @@ function getClientIP(): string {
  * Sanitize input string (prevent XSS)
  */
 function sanitize(string $input): string {
-    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+    return trim($input);
 }
 
 /**

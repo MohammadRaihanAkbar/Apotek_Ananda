@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireLogin();
 requireSuperAdmin();
 
-$pageTitle = 'Dashboard - Super Admin';
+$pageTitle = 'Dashboard - Admin';
 require_once __DIR__ . '/../templates/header.php';
 
 require_once __DIR__ . '/../../backend/controllers/dashboard_controller.php';

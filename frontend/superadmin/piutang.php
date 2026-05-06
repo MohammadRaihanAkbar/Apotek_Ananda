@@ -1,6 +1,7 @@
 <?php
 /**
  * Piutang - Otomatis dari faktur.
+ * Tampilan 2 tabel: Belum Lunas & Lunas.
  */
 require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireSuperAdmin();
@@ -10,14 +11,12 @@ require_once __DIR__ . '/../templates/header.php';
 require_once __DIR__ . '/../../backend/models/piutang.php';
 
 $model = new Piutang();
-$filterStatus = $_GET['status'] ?? null;
-$filterBulan  = $_GET['bulan'] ?? null;
-$search       = isset($_GET['search']) ? sanitize($_GET['search']) : null;
+$search = isset($_GET['search']) ? sanitize($_GET['search']) : null;
 
-$piutangList = $model->getAll($filterStatus, $filterBulan, $search);
-$summary     = $model->getSummary($filterBulan);
-$months      = $model->getAvailableMonths();
-$flash       = getFlashMessage();
+$listBelumLunas = $model->getAllByStatus('belum_lunas', $search);
+$listLunas      = $model->getAllByStatus('lunas', $search);
+$summary        = $model->getSummary();
+$flash          = getFlashMessage();
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
@@ -47,27 +46,16 @@ require_once __DIR__ . '/../templates/sidebar.php';
 </div>
 
 <div class="filter-bar">
-    <form method="GET" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;">
-        <select name="bulan" class="form-control" style="width:auto;min-width:150px;">
-            <option value="">Semua Bulan</option>
-            <?php foreach ($months as $m): ?>
-                <option value="<?= $m ?>" <?= $filterBulan === $m ? 'selected' : '' ?>><?= $m ?></option>
-            <?php endforeach; ?>
-        </select>
-        <select name="status" class="form-control" style="width:auto;min-width:140px;">
-            <option value="">Semua Status</option>
-            <option value="lunas" <?= $filterStatus === 'lunas' ? 'selected' : '' ?>>Lunas</option>
-            <option value="belum_lunas" <?= $filterStatus === 'belum_lunas' ? 'selected' : '' ?>>Belum Lunas</option>
-        </select>
+    <form method="GET" style="display:flex;gap:8px;flex:1;">
         <div style="flex:1; display:flex; min-width:220px;">
-            <input type="text" name="search" class="form-control autocomplete-input" data-type="piutang" placeholder="🔍 Cari faktur/PBF..." value="<?= htmlspecialchars($search ?? '') ?>" autocomplete="off">
+            <input type="text" name="search" class="form-control autocomplete-input" data-type="piutang" placeholder="🔍 Cari no faktur / PBF / obat..." value="<?= htmlspecialchars($search ?? '') ?>" autocomplete="off">
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <button type="submit" class="btn btn-primary btn-sm">Cari</button>
         <a href="?" class="btn btn-secondary btn-sm">Reset</a>
     </form>
     <div style="display:flex;gap:8px;">
-        <a href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_excel&bulan=<?= urlencode($filterBulan ?? '') ?>&status=<?= urlencode($filterStatus ?? '') ?>&search=<?= urlencode($search ?? '') ?>" class="btn btn-success btn-sm">📊 Excel</a>
-        <a href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_pdf&bulan=<?= urlencode($filterBulan ?? '') ?>&status=<?= urlencode($filterStatus ?? '') ?>&search=<?= urlencode($search ?? '') ?>" class="btn btn-danger btn-sm" target="_blank">📄 PDF</a>
+        <a href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_excel&search=<?= urlencode($search ?? '') ?>" class="btn btn-success btn-sm">📊 Excel</a>
+        <a href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_pdf&search=<?= urlencode($search ?? '') ?>" class="btn btn-danger btn-sm" target="_blank">📄 PDF</a>
     </div>
 </div>
 
@@ -75,17 +63,22 @@ require_once __DIR__ . '/../templates/sidebar.php';
     <strong>Catatan:</strong> Tambah/edit data faktur dilakukan dari menu <strong>Manajemen Stok</strong>. Halaman ini hanya mengambil data faktur dan mengelola status pembayaran.
 </div>
 
-<div class="card">
+<!-- Tabel Belum Lunas -->
+<div class="card" style="border-left:4px solid var(--danger);">
+    <div class="card-title" style="color:var(--danger);">
+        <span class="material-icons-round">warning</span>
+        Belum Lunas (<?= count($listBelumLunas) ?>)
+    </div>
     <div class="table-wrapper">
         <table>
             <thead>
-                <tr><th>No</th><th>No. Faktur</th><th>PBF</th><th>Tgl Faktur</th><th>Jatuh Tempo</th><th>Item</th><th>Total Faktur</th><th>Status</th><th>Tgl Lunas</th><th>Bukti</th><th>Aksi</th></tr>
+                <tr><th>No</th><th>No. Faktur</th><th>PBF</th><th>Tgl Faktur</th><th>Jatuh Tempo</th><th>Item</th><th>Total Faktur</th><th>Bukti</th><th>Aksi</th></tr>
             </thead>
             <tbody>
-                <?php if (empty($piutangList)): ?>
-                    <tr><td colspan="11" class="text-center" style="color:#94a3b8;padding:30px;">Tidak ada data faktur/piutang</td></tr>
+                <?php if (empty($listBelumLunas)): ?>
+                    <tr><td colspan="9" class="text-center" style="color:#94a3b8;padding:30px;">Tidak ada piutang belum lunas 🎉</td></tr>
                 <?php else: ?>
-                    <?php foreach ($piutangList as $i => $p): ?>
+                    <?php foreach ($listBelumLunas as $i => $p): ?>
                     <tr>
                         <td><?= $i + 1 ?></td>
                         <td><strong><?= htmlspecialchars($p['no_faktur']) ?></strong></td>
@@ -95,12 +88,45 @@ require_once __DIR__ . '/../templates/sidebar.php';
                         <td class="text-right"><?= (int)$p['jumlah_item'] ?></td>
                         <td class="text-right">Rp <?= number_format($p['jumlah_harga'], 0, ',', '.') ?></td>
                         <td>
-                            <?php if ($p['status'] === 'lunas'): ?>
-                                <span class="badge badge-success">Lunas</span>
+                            <?php if ($p['bukti_pembayaran']): ?>
+                                <a href="<?= BASE_URL ?>/frontend/superadmin/lihat_bukti.php?id=<?= $p['id_faktur'] ?>" class="btn btn-sm btn-secondary">📎 Lihat</a>
                             <?php else: ?>
-                                <span class="badge badge-danger">Belum Lunas</span>
+                                <span style="color:#94a3b8">-</span>
                             <?php endif; ?>
                         </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="lunasi(<?= $p['id_faktur'] ?>, '<?= htmlspecialchars($p['no_faktur']) ?>')">✅ Lunas</button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tabel Lunas -->
+<div class="card" style="border-left:4px solid var(--success);">
+    <div class="card-title" style="color:var(--success);">
+        <span class="material-icons-round">check_circle</span>
+        Lunas (<?= count($listLunas) ?>)
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>No</th><th>No. Faktur</th><th>PBF</th><th>Tgl Faktur</th><th>Total Faktur</th><th>Tgl Lunas</th><th>Bukti</th><th>Aksi</th></tr>
+            </thead>
+            <tbody>
+                <?php if (empty($listLunas)): ?>
+                    <tr><td colspan="8" class="text-center" style="color:#94a3b8;padding:30px;">Tidak ada data lunas</td></tr>
+                <?php else: ?>
+                    <?php foreach ($listLunas as $i => $p): ?>
+                    <tr>
+                        <td><?= $i + 1 ?></td>
+                        <td><strong><?= htmlspecialchars($p['no_faktur']) ?></strong></td>
+                        <td><?= htmlspecialchars($p['nama_pbf']) ?></td>
+                        <td><?= htmlspecialchars($p['tanggal_faktur']) ?></td>
+                        <td class="text-right">Rp <?= number_format($p['jumlah_harga'], 0, ',', '.') ?></td>
                         <td><?= htmlspecialchars($p['tanggal_lunas'] ?? '-') ?></td>
                         <td>
                             <?php if ($p['bukti_pembayaran']): ?>
@@ -110,17 +136,11 @@ require_once __DIR__ . '/../templates/sidebar.php';
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                <?php if ($p['status'] === 'belum_lunas'): ?>
-                                    <button class="btn btn-success btn-sm" onclick="lunasi(<?= $p['id_faktur'] ?>, '<?= htmlspecialchars($p['no_faktur']) ?>')">✅ Lunas</button>
-                                <?php else: ?>
-                                    <form method="POST" action="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=belum_lunas" onsubmit="return confirm('Ubah faktur ini menjadi belum lunas?')">
-                                        <?= csrfField() ?>
-                                        <input type="hidden" name="id_faktur" value="<?= $p['id_faktur'] ?>">
-                                        <button type="submit" class="btn btn-warning btn-sm">↩ Belum</button>
-                                    </form>
-                                <?php endif; ?>
-                            </div>
+                            <form method="POST" action="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=belum_lunas" onsubmit="return confirm('Ubah faktur ini menjadi belum lunas?')">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="id_faktur" value="<?= $p['id_faktur'] ?>">
+                                <button type="submit" class="btn btn-warning btn-sm">↩ Belum</button>
+                            </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>

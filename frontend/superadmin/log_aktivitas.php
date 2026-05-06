@@ -37,8 +37,8 @@ require_once __DIR__ . '/../templates/sidebar.php';
         <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Filter Peran</label>
         <select name="role" class="form-control" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
             <option value="">Semua Role</option>
-            <option value="super_admin" <?= $filterRole === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
-            <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Admin</option>
+            <option value="super_admin" <?= $filterRole === 'super_admin' ? 'selected' : '' ?>>Admin</option>
+            <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Staff</option>
         </select>
     </div>
     
@@ -92,7 +92,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
                         </td>
                         <td>
                             <span class="badge <?= $log['role'] === 'super_admin' ? 'badge-info' : 'badge-success' ?>" style="font-size:10px;">
-                                <?= $log['role'] === 'super_admin' ? 'Super Admin' : 'Admin' ?>
+                                <?= $log['role'] === 'super_admin' ? 'Admin' : 'Staff' ?>
                             </span>
                         </td>
                         <td>

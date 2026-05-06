@@ -92,6 +92,7 @@ function handleLogin(): void {
     
     // 6. Login berhasil!
     $userModel->clearLoginAttempts($ip, $username);
+    $userModel->cleanupOldAttempts();
     setUserSession($user);
     
     // 7. Catat log aktivitas

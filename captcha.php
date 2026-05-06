@@ -1,10 +1,16 @@
 <?php
 /**
- * CAPTCHA Image Endpoint - Apotek Ananda Jadimulya
- * Generates a CAPTCHA image dan outputs sebagai PNG.
- * URL: /ApotekAnanda/captcha.php
+ * CAPTCHA Endpoint - Apotek Ananda Jadimulya
+ * Mengembalikan soal math CAPTCHA baru (JSON).
  */
-
+require_once __DIR__ . '/backend/config/database.php';
 require_once __DIR__ . '/backend/helpers/captcha_helper.php';
 
-renderCaptchaImage();
+// Jika request refresh (AJAX), return JSON
+if (isset($_GET['refresh'])) {
+    apiRefreshCaptcha();
+    exit;
+}
+
+// Legacy fallback: generate dan return JSON
+apiRefreshCaptcha();

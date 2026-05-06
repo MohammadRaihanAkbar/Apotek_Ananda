@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireLogin();
 if (isSuperAdmin()) { redirect(BASE_URL . '/frontend/superadmin/dashboard.php'); }
 
-$pageTitle = 'Dashboard - Admin';
+$pageTitle = 'Dashboard - Staff';
 require_once __DIR__ . '/../templates/header.php';
 
 require_once __DIR__ . '/../../backend/controllers/dashboard_controller.php';

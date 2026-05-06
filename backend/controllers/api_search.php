@@ -29,15 +29,15 @@ try {
     $termLike = "%$term%";
     switch ($type) {
         case 'stok_obat':
-            $stmt = $db->prepare("SELECT DISTINCT nama_obat AS label, nama_obat AS value FROM obat_faktur WHERE nama_obat LIKE :term
-                                  UNION SELECT DISTINCT no_faktur AS label, no_faktur AS value FROM faktur WHERE no_faktur LIKE :term LIMIT 10");
-            $stmt->execute(['term' => $termLike]);
+            $stmt = $db->prepare("SELECT DISTINCT nama_obat AS label, nama_obat AS value FROM obat_faktur WHERE nama_obat LIKE :term1
+                                  UNION SELECT DISTINCT no_faktur AS label, no_faktur AS value FROM faktur WHERE no_faktur LIKE :term2 LIMIT 10");
+            $stmt->execute(['term1' => $termLike, 'term2' => $termLike]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             break;
         case 'piutang':
-            $stmt = $db->prepare("SELECT DISTINCT f.no_faktur AS label, f.no_faktur AS value FROM faktur f WHERE f.no_faktur LIKE :term
-                                  UNION SELECT DISTINCT p.nama_pbf AS label, p.nama_pbf AS value FROM faktur f JOIN pbf p ON f.id_pbf = p.id_pbf WHERE p.nama_pbf LIKE :term LIMIT 10");
-            $stmt->execute(['term' => $termLike]);
+            $stmt = $db->prepare("SELECT DISTINCT f.no_faktur AS label, f.no_faktur AS value FROM faktur f WHERE f.no_faktur LIKE :term1
+                                  UNION SELECT DISTINCT p.nama_pbf AS label, p.nama_pbf AS value FROM faktur f JOIN pbf p ON f.id_pbf = p.id_pbf WHERE p.nama_pbf LIKE :term2 LIMIT 10");
+            $stmt->execute(['term1' => $termLike, 'term2' => $termLike]);
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             break;
         case 'expired':
