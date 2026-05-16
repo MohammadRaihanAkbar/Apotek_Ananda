@@ -20,7 +20,9 @@ $flash          = getFlashMessage();
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
-
+<div class="dashboard-wrapper">
+  <div class="glass-container">
+    <div class="glass-inner">
 <div class="page-header">
     <h1>Manajemen Piutang</h1>
     <p>Piutang otomatis muncul dari faktur. Di sini hanya mengubah status lunas / belum lunas.</p>
@@ -175,5 +177,92 @@ function lunasi(id,faktur){
 }
 document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)closeModal(el.id)})});
 </script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+*{font-family:'Poppins',sans-serif}
 
+/* Background biru putih halus */
+body{
+    min-height:100vh;
+    background: linear-gradient(135deg,#e0f2fe 0%,#ffffff 45%,#dbeafe 100%);
+    color:#0f172a;
+}
+
+/* Wrapper glass */
+.dashboard-wrapper{ padding:40px; }
+
+.glass-container{
+    background: rgba(255,255,255,0.60);
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:28px;
+    padding:28px;
+    box-shadow:0 15px 45px rgba(15,23,42,0.12);
+}
+
+.glass-inner{
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border:1px solid rgba(255,255,255,0.85);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 10px 35px rgba(15,23,42,0.10);
+}
+
+/* Semua card jadi glass */
+.card, .stat-card{
+    background: rgba(255,255,255,0.65) !important;
+    backdrop-filter: blur(22px);
+    border:1px solid rgba(255,255,255,0.8);
+    border-radius:18px;
+    box-shadow:0 15px 45px rgba(37,99,235,.18);
+}
+
+/* Header gradasi biru */
+.page-header h1{
+    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* Table feel */
+.table-wrapper thead{
+    background: linear-gradient(90deg,#dbeafe,#eff6ff);
+}
+.table-wrapper tbody tr:hover{
+    background:rgba(59,130,246,.08);
+    transition:.2s;
+}
+
+/* Form */
+.form-control{
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+}
+.form-control:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,.2);
+}
+
+/* Button gradient */
+.btn-primary{
+    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    border:none;
+}
+.btn-secondary{
+    background:#e2e8f0;
+    border:none;
+}
+.page-header h1,
+.page-header p{
+    color:#000 !important;
+    -webkit-text-fill-color:#000 !important;
+    background:none !important;
+}
+</style>
+ </div>
+  </div>
+</div>
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>
