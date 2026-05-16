@@ -16,7 +16,9 @@ $flash = getFlashMessage();
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
-
+<div class="dashboard-wrapper">
+  <div class="glass-container">
+    <div class="glass-inner">
 <div class="page-header">
     <h1>Manajemen PBF</h1>
     <p>Master data PBF dikelola oleh Super Admin dan dipakai sebagai dropdown di Manajemen Stok.</p>
@@ -139,5 +141,65 @@ function detailPBF(data){
 }
 document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)closeModal(el.id)})});
 </script>
+<style>
+body{
+    min-height:100vh;
+    background: linear-gradient(135deg,#cfe9ff 0%,#ffffff 45%,#dbeafe 100%);
+    color:#0f172a;
+    font-family:'Poppins',sans-serif;
+}
 
+.dashboard-wrapper{ padding:40px; }
+
+.glass-container{
+    background: rgba(255,255,255,0.60);
+    backdrop-filter: blur(26px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:28px;
+    padding:28px;
+    box-shadow:0 15px 45px rgba(15,23,42,0.12);
+}
+
+.glass-inner{
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(22px);
+    border:1px solid rgba(255,255,255,0.85);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 10px 35px rgba(15,23,42,0.10);
+}
+
+/* Card & Table ikut glass */
+.card{
+    background:rgba(255,255,255,0.65) !important;
+    backdrop-filter:blur(18px);
+    border-radius:22px !important;
+    border:1px solid rgba(255,255,255,0.8) !important;
+}
+
+table thead th{
+    background:rgba(219,234,254,0.85) !important;
+    border:none !important;
+}
+
+table tbody td{
+    background:rgba(255,255,255,0.65) !important;
+}
+
+/* Modal glass */
+.modal-content, .modal{
+    background:rgba(255,255,255,0.75) !important;
+    backdrop-filter:blur(30px);
+    border-radius:26px !important;
+}
+
+/* Header hitam */
+.page-header h1,
+.page-header p{
+    color:#000 !important;
+}
+</style>
+    </div>
+  </div>
+</div>
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>
