@@ -30,6 +30,49 @@ $queryString = http_build_query(array_filter($filters, fn($v) => $v !== null && 
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+*{font-family:'Poppins',sans-serif}
+
+body{
+    min-height:100vh;
+    background: linear-gradient(135deg,#cfe9ff 0%,#ffffff 45%,#dbeafe 100%);
+    color:#0f172a;
+}
+
+.dashboard-wrapper{ padding:40px; }
+
+.glass-container{
+    background: rgba(255,255,255,0.60);
+    backdrop-filter: blur(26px);
+    border:1px solid rgba(255,255,255,0.9);
+    border-radius:28px;
+    padding:28px;
+    box-shadow:0 15px 45px rgba(15,23,42,0.12);
+}
+
+.glass-inner{
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(22px);
+    border:1px solid rgba(255,255,255,0.85);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 10px 35px rgba(15,23,42,0.10);
+}
+
+/* table feel sama */
+.table-wrapper table thead{
+    background:rgba(219,234,254,0.85);
+}
+.table-wrapper tbody tr:hover{
+    background:rgba(219,234,254,0.35);
+    transform:scale(1.01);
+    transition:.2s;
+}
+</style>
+    <div class="dashboard-wrapper">
+<div class="glass-container">
+<div class="glass-inner">
 
 <div class="page-header">
     <h1>Laporan Kadaluwarsa</h1>
@@ -147,5 +190,90 @@ require_once __DIR__ . '/../templates/sidebar.php';
         </table>
     </div>
 </div>
+<style>
+/* Background biru putih halus */
+body{
+    background: linear-gradient(135deg,#e0f2fe 0%,#ffffff 45%,#dbeafe 100%);
+}
 
+/* Header */
+.page-header h1{
+    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* Glass card global */
+.card, .stat-card{
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border:1px solid rgba(255,255,255,0.8);
+    border-radius:18px;
+    box-shadow:0 15px 45px rgba(37,99,235,.18);
+}
+
+/* Stats lebih hidup */
+.dashboard-wrapper{ padding:12px 18px; }
+.glass-container{ padding:14px; }
+.glass-inner{ padding:14px; }
+}
+
+/* Form filter */
+.form-control{
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+}
+.form-control:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,.2);
+}
+
+/* Button gradient */
+.btn-primary{
+    background: linear-gradient(90deg,#0ea5e9,#2563eb);
+    border:none;
+}
+.btn-secondary{
+    background:#e2e8f0;
+    border:none;
+}
+
+/* Table */
+.table-wrapper table{
+    border-collapse:collapse;
+}
+.table-wrapper thead{
+    background: linear-gradient(90deg,#dbeafe,#eff6ff);
+}
+.table-wrapper th{
+    padding:12px;
+}
+.table-wrapper td{
+    padding:10px;
+}
+.table-wrapper tbody tr:hover{
+    background:rgba(59,130,246,.08);
+    transition:.2s;
+}
+
+/* Badge */
+.badge-danger{
+    background:#ef4444;
+}
+.badge-warning{
+    background:#f59e0b;
+    color:#fff;
+}
+.page-header h1,
+.page-header p{
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
+}
+</style>
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>
+</div>
+</div>
+</div>
