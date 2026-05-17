@@ -16,190 +16,924 @@ $flash = getFlashMessage();
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
+
+<!-- Background -->
+<div class="bg-grid"></div>
+<div class="bg-bubble one"></div>
+<div class="bg-bubble two"></div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    overflow-x:hidden;
+    color:#0f172a;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff 0%,
+            #eef5ff 40%,
+            #ffffff 100%
+        );
+
+    position:relative;
+}
+
+/* BACKGROUND */
+body::before{
+    content:'';
+    position:fixed;
+    inset:-20%;
+
+    background:
+        radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 60%),
+        radial-gradient(circle, rgba(96,165,250,0.13) 0%, transparent 60%);
+
+    background-size:700px 700px;
+    animation:moveGlow 18s linear infinite;
+
+    filter:blur(40px);
+    z-index:-4;
+}
+
+.bg-grid{
+    position:fixed;
+    inset:0;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+
+    background-size:40px 40px;
+
+    mask-image:
+        radial-gradient(circle at center, black 40%, transparent 85%);
+
+    z-index:-3;
+}
+
+.bg-bubble{
+    position:fixed;
+    border-radius:50%;
+    pointer-events:none;
+
+    background:
+        radial-gradient(
+            circle at 30% 30%,
+            rgba(255,255,255,0.9),
+            rgba(255,255,255,0.08)
+        );
+
+    box-shadow:
+        inset 0 0 25px rgba(255,255,255,0.9),
+        0 0 35px rgba(59,130,246,0.10);
+
+    animation:floating 12s ease-in-out infinite;
+    z-index:-2;
+}
+
+.bg-bubble.one{
+    width:220px;
+    height:220px;
+    top:5%;
+    left:-80px;
+}
+
+.bg-bubble.two{
+    width:300px;
+    height:300px;
+    bottom:-120px;
+    right:-80px;
+    animation-duration:18s;
+}
+
+@keyframes moveGlow{
+    0%{ transform:translate(0,0) rotate(0deg); }
+    50%{ transform:translate(40px,-30px) rotate(180deg); }
+    100%{ transform:translate(0,0) rotate(360deg); }
+}
+
+@keyframes floating{
+    0%,100%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-20px);
+    }
+}
+
+/* WRAPPER */
+.dashboard-wrapper{
+    padding:35px;
+    position:relative;
+    z-index:10;
+}
+
+/* GLASS */
+.glass-container{
+    background:rgba(255,255,255,0.42);
+
+    border:1px solid rgba(255,255,255,0.8);
+
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+
+    border-radius:30px;
+
+    padding:30px;
+
+    box-shadow:
+        0 15px 45px rgba(15,23,42,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.glass-inner{
+    background:rgba(255,255,255,0.30);
+
+    border:1px solid rgba(255,255,255,0.7);
+
+    border-radius:26px;
+
+    padding:28px;
+}
+
+/* HEADER */
+.page-header{
+    margin-bottom:28px;
+}
+
+.page-header h1{
+    font-size:34px;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:8px;
+}
+
+.page-header p{
+    color:#64748b;
+    font-size:14px;
+}
+
+/* ALERT */
+.alert{
+    padding:14px 18px;
+    border-radius:16px;
+    margin-bottom:20px;
+    border:none;
+    background:rgba(255,255,255,0.7);
+    backdrop-filter:blur(14px);
+}
+
+/* FILTER */
+.filter-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
+
+.search-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:rgba(255,255,255,0.55);
+
+    border:1px solid rgba(255,255,255,0.9);
+
+    border-radius:18px;
+
+    padding:8px;
+}
+
+.form-control{
+    border:none !important;
+    background:transparent !important;
+    padding:12px 14px !important;
+    min-width:300px;
+    outline:none !important;
+    box-shadow:none !important;
+}
+
+/* BUTTON */
+.btn{
+    border:none !important;
+    border-radius:14px !important;
+
+    padding:11px 18px !important;
+
+    font-size:13px !important;
+    font-weight:600 !important;
+
+    transition:0.25s ease;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.btn-primary{
+    color:#fff !important;
+
+    background:linear-gradient(
+        135deg,
+        #3b82f6,
+        #2563eb
+    ) !important;
+
+    box-shadow:
+        0 10px 25px rgba(37,99,235,0.18);
+}
+
+.btn-secondary{
+    background:#e2e8f0 !important;
+    color:#334155 !important;
+}
+
+.btn-warning{
+    background:#facc15 !important;
+    color:#111827 !important;
+}
+
+.btn-danger{
+    background:#ef4444 !important;
+    color:#fff !important;
+}
+
+/* TABLE */
+.table-wrapper{
+    overflow:auto;
+    border-radius:24px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+}
+
+thead th{
+    background:rgba(219,234,254,0.75);
+
+    padding:18px 16px;
+
+    text-align:left;
+
+    font-size:13px;
+    font-weight:700;
+    color:#334155;
+}
+
+tbody td{
+    padding:18px 16px;
+
+    background:rgba(255,255,255,0.45);
+
+    border-bottom:1px solid rgba(226,232,240,0.8);
+
+    font-size:14px;
+    color:#334155;
+}
+
+tbody tr{
+    transition:0.25s ease;
+}
+
+tbody tr:hover{
+    transform:scale(1.005);
+
+    background:rgba(255,255,255,0.7);
+}
+
+.badge-count{
+    width:34px;
+    height:34px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#dbeafe;
+
+    color:#2563eb;
+    font-weight:700;
+}
+
+/* ACTION */
+.action-group{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+/* MODAL */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+
+    background:rgba(15,23,42,0.35);
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    z-index:999;
+}
+
+.modal-overlay.active{
+    display:flex;
+}
+
+.modal{
+    width:100%;
+    max-width:520px;
+
+    background:#ffffff;
+
+    border-radius:24px;
+
+    padding:24px;
+
+    animation:modalShow .25s ease;
+}
+
+@keyframes modalShow{
+    from{
+        opacity:0;
+        transform:translateY(20px) scale(.96);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+.modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:20px;
+}
+
+.modal-header h3{
+    font-size:22px;
+    font-weight:700;
+}
+
+.modal-close{
+    border:none;
+    background:#f1f5f9;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:22px;
+}
+
+.form-group{
+    margin-bottom:16px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+
+    font-size:13px;
+    font-weight:600;
+    color:#334155;
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+
+    border:none;
+
+    background:#f8fafc;
+
+    border-radius:16px;
+
+    padding:14px 16px;
+
+    font-size:14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    outline:none;
+    box-shadow:0 0 0 4px rgba(59,130,246,0.15);
+}
+
+.detail-grid{
+    display:grid;
+    gap:16px;
+}
+
+.detail-item{
+    background:#f8fafc;
+    border-radius:16px;
+    padding:16px;
+}
+
+.detail-item strong{
+    display:block;
+    margin-bottom:5px;
+    color:#0f172a;
+}
+
+@media(max-width:768px){
+
+    .dashboard-wrapper{
+        padding:18px;
+    }
+
+    .form-control{
+        min-width:100%;
+    }
+
+    .filter-bar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+    .page-header h1{
+        font-size:26px;
+    }
+
+    table{
+        min-width:900px;
+    }
+}
+</style>
+
 <div class="dashboard-wrapper">
-  <div class="glass-container">
-    <div class="glass-inner">
-<div class="page-header">
-    <h1>Manajemen PBF</h1>
-    <p>Master data PBF dikelola oleh Super Admin dan dipakai sebagai dropdown di Manajemen Stok.</p>
-</div>
 
-<?php if ($flash): ?>
-    <div class="alert alert-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['message']) ?></div>
-<?php endif; ?>
+    <div class="glass-container">
 
-<div class="filter-bar">
-    <form method="GET" style="display:flex;gap:8px;flex:1;min-width:260px;">
-        <input type="text" name="search" class="form-control" placeholder="🔍 Cari nama PBF, kontak, telepon, alamat..." value="<?= htmlspecialchars($search) ?>">
-        <button type="submit" class="btn btn-primary btn-sm">Cari</button>
-        <?php if ($search !== ''): ?><a href="?" class="btn btn-secondary btn-sm">Reset</a><?php endif; ?>
-    </form>
-    <button class="btn btn-primary" onclick="openModal('modalTambahPBF')">+ Tambah PBF</button>
-</div>
+        <div class="glass-inner">
 
-<div class="card">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr><th>No</th><th>Nama PBF</th><th>Kontak</th><th>Alamat</th><th>Jumlah Faktur</th><th>Aksi</th></tr>
-            </thead>
-            <tbody>
-                <?php if (empty($pbfList)): ?>
-                    <tr><td colspan="6" class="text-center" style="color:#94a3b8;padding:30px;">Tidak ada data PBF yang cocok</td></tr>
-                <?php else: ?>
-                    <?php foreach ($pbfList as $i => $pbf): $stokCount = $model->countStokByPBF((int)$pbf['id_pbf']); ?>
-                    <tr>
-                        <td><?= $i + 1 ?></td>
-                        <td>
-                            <strong><?= htmlspecialchars($pbf['nama_pbf']) ?></strong>
-                            <div style="font-size:11px;color:#94a3b8;">Dibuat: <?= htmlspecialchars($pbf['created_by'] ?? '-') ?></div>
-                        </td>
-                        <td>
-                            <?= htmlspecialchars($pbf['kontak_person'] ?? '-') ?><br>
-                            <span style="font-size:12px;color:#64748b;"><?= htmlspecialchars($pbf['no_telepon'] ?? '-') ?></span>
-                        </td>
-                        <td style="max-width:260px;"><?= htmlspecialchars($pbf['alamat'] ?? '-') ?></td>
-                        <td class="text-right"><?= $stokCount ?></td>
-                        <td>
-                            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                <button class="btn btn-secondary btn-sm" onclick='detailPBF(<?= json_encode($pbf) ?>)'>Detail</button>
-                                <button class="btn btn-warning btn-sm" onclick='editPBF(<?= json_encode($pbf) ?>)'>✏️ Edit</button>
-                                <form method="POST" action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=delete" onsubmit="return confirm('Hapus PBF ini?')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="id_pbf" value="<?= $pbf['id_pbf'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm" <?= $stokCount > 0 ? 'disabled title="PBF sudah dipakai di faktur"' : '' ?>>🗑️ Hapus</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+            <div class="page-header">
+                <h1>Manajemen PBF</h1>
+                <p>
+                    Kelola seluruh data Pedagang Besar Farmasi dengan tampilan modern.
+                </p>
+            </div>
+
+            <?php if ($flash): ?>
+                <div class="alert">
+                    <?= htmlspecialchars($flash['message']) ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="filter-bar">
+
+                <form method="GET" class="search-box">
+
+                    <input
+                        type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Cari nama PBF, telepon, kontak..."
+                        value="<?= htmlspecialchars($search) ?>"
+                    >
+
+                    <button type="submit" class="btn btn-primary">
+                        Cari
+                    </button>
+
+                    <?php if ($search !== ''): ?>
+                        <a href="?" class="btn btn-secondary">
+                            Reset
+                        </a>
+                    <?php endif; ?>
+
+                </form>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="openModal('modalTambahPBF')"
+                >
+                    + Tambah PBF
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama PBF</th>
+                            <th>Kontak</th>
+                            <th>Alamat</th>
+                            <th>Jumlah Faktur</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <?php if (empty($pbfList)): ?>
+
+                            <tr>
+                                <td colspan="6" style="text-align:center;padding:30px;">
+                                    Tidak ada data PBF
+                                </td>
+                            </tr>
+
+                        <?php else: ?>
+
+                            <?php foreach ($pbfList as $i => $pbf): 
+                                $stokCount = $model->countStokByPBF((int)$pbf['id_pbf']);
+                            ?>
+
+                            <tr>
+
+                                <td><?= $i + 1 ?></td>
+
+                                <td>
+                                    <strong>
+                                        <?= htmlspecialchars($pbf['nama_pbf']) ?>
+                                    </strong>
+
+                                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;">
+                                        Dibuat:
+                                        <?= htmlspecialchars($pbf['created_by'] ?? '-') ?>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($pbf['kontak_person'] ?? '-') ?>
+
+                                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;">
+                                        <?= htmlspecialchars($pbf['no_telepon'] ?? '-') ?>
+                                    </div>
+                                </td>
+
+                                <td style="max-width:240px;">
+                                    <?= htmlspecialchars($pbf['alamat'] ?? '-') ?>
+                                </td>
+
+                                <td>
+                                    <div class="badge-count">
+                                        <?= $stokCount ?>
+                                    </div>
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <button
+                                            class="btn btn-primary"
+                                            onclick='detailPBF(<?= json_encode($pbf) ?>)'
+                                        >
+                                            Detail
+                                        </button>
+
+                                        <button
+                                            class="btn btn-warning"
+                                            onclick='editPBF(<?= json_encode($pbf) ?>)'
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <form
+                                            method="POST"
+                                            action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=delete"
+                                            onsubmit="return confirm('Hapus PBF ini?')"
+                                        >
+                                            <?= csrfField() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="id_pbf"
+                                                value="<?= $pbf['id_pbf'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-danger"
+                                                <?= $stokCount > 0 ? 'disabled' : '' ?>
+                                            >
+                                                Hapus
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
+<!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modalTambahPBF">
+
     <div class="modal">
-        <div class="modal-header"><h3>Tambah PBF Baru</h3><button class="modal-close" onclick="closeModal('modalTambahPBF')">&times;</button></div>
-        <form method="POST" action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=create">
+
+        <div class="modal-header">
+            <h3>Tambah PBF</h3>
+
+            <button
+                class="modal-close"
+                onclick="closeModal('modalTambahPBF')"
+            >
+                &times;
+            </button>
+        </div>
+
+        <form
+            method="POST"
+            action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=create"
+        >
+
             <?= csrfField() ?>
-            <div class="form-group"><label>Nama PBF *</label><input type="text" name="nama_pbf" class="form-control" required placeholder="Contoh: Kimia Farma"></div>
-            <div class="form-group"><label>Alamat</label><textarea name="alamat" class="form-control" rows="3"></textarea></div>
-            <div class="form-group"><label>No. Telepon</label><input type="text" name="no_telepon" class="form-control"></div>
-            <div class="form-group"><label>Kontak Person</label><input type="text" name="kontak_person" class="form-control"></div>
-            <div class="form-group"><label>Keterangan</label><textarea name="keterangan" class="form-control" rows="3"></textarea></div>
-            <button type="submit" class="btn btn-primary">💾 Simpan PBF</button>
+
+            <div class="form-group">
+                <label>Nama PBF</label>
+
+                <input
+                    type="text"
+                    name="nama_pbf"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Alamat</label>
+
+                <textarea
+                    name="alamat"
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>No Telepon</label>
+
+                <input
+                    type="text"
+                    name="no_telepon"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Kontak Person</label>
+
+                <input
+                    type="text"
+                    name="kontak_person"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Keterangan</label>
+
+                <textarea
+                    name="keterangan"
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Simpan PBF
+            </button>
+
         </form>
+
     </div>
+
 </div>
 
+<!-- MODAL EDIT -->
 <div class="modal-overlay" id="modalEditPBF">
+
     <div class="modal">
-        <div class="modal-header"><h3>Edit PBF</h3><button class="modal-close" onclick="closeModal('modalEditPBF')">&times;</button></div>
-        <form method="POST" action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=update">
+
+        <div class="modal-header">
+
+            <h3>Edit PBF</h3>
+
+            <button
+                class="modal-close"
+                onclick="closeModal('modalEditPBF')"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <form
+            method="POST"
+            action="<?= BASE_URL ?>/backend/controllers/pbf_controller.php?action=update"
+        >
+
             <?= csrfField() ?>
-            <input type="hidden" name="id_pbf" id="editIdPbf">
-            <div class="form-group"><label>Nama PBF *</label><input type="text" name="nama_pbf" id="editNamaPbf" class="form-control" required></div>
-            <div class="form-group"><label>Alamat</label><textarea name="alamat" id="editAlamat" class="form-control" rows="3"></textarea></div>
-            <div class="form-group"><label>No. Telepon</label><input type="text" name="no_telepon" id="editTelepon" class="form-control"></div>
-            <div class="form-group"><label>Kontak Person</label><input type="text" name="kontak_person" id="editKontak" class="form-control"></div>
-            <div class="form-group"><label>Keterangan</label><textarea name="keterangan" id="editKeterangan" class="form-control" rows="3"></textarea></div>
-            <button type="submit" class="btn btn-primary">💾 Update PBF</button>
+
+            <input
+                type="hidden"
+                name="id_pbf"
+                id="editIdPbf"
+            >
+
+            <div class="form-group">
+                <label>Nama PBF</label>
+
+                <input
+                    type="text"
+                    name="nama_pbf"
+                    id="editNamaPbf"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Alamat</label>
+
+                <textarea
+                    name="alamat"
+                    id="editAlamat"
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>No Telepon</label>
+
+                <input
+                    type="text"
+                    name="no_telepon"
+                    id="editTelepon"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Kontak Person</label>
+
+                <input
+                    type="text"
+                    name="kontak_person"
+                    id="editKontak"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Keterangan</label>
+
+                <textarea
+                    name="keterangan"
+                    id="editKeterangan"
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Update PBF
+            </button>
+
         </form>
+
     </div>
+
 </div>
 
+<!-- MODAL DETAIL -->
 <div class="modal-overlay" id="modalDetailPBF">
+
     <div class="modal">
-        <div class="modal-header"><h3>Detail PBF</h3><button class="modal-close" onclick="closeModal('modalDetailPBF')">&times;</button></div>
+
+        <div class="modal-header">
+
+            <h3>Detail PBF</h3>
+
+            <button
+                class="modal-close"
+                onclick="closeModal('modalDetailPBF')"
+            >
+                &times;
+            </button>
+
+        </div>
+
         <div id="detailPBFContent"></div>
+
     </div>
+
 </div>
 
 <script>
-function val(v){ return v || '-'; }
+function openModal(id){
+    document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id){
+    document.getElementById(id).classList.remove('active');
+}
+
+function val(v){
+    return v || '-';
+}
+
 function editPBF(data){
+
     document.getElementById('editIdPbf').value = data.id_pbf;
     document.getElementById('editNamaPbf').value = data.nama_pbf || '';
     document.getElementById('editAlamat').value = data.alamat || '';
     document.getElementById('editTelepon').value = data.no_telepon || '';
     document.getElementById('editKontak').value = data.kontak_person || '';
     document.getElementById('editKeterangan').value = data.keterangan || '';
+
     openModal('modalEditPBF');
 }
+
 function detailPBF(data){
+
     document.getElementById('detailPBFContent').innerHTML = `
-        <div style="display:grid;gap:12px;">
-            <div><strong>Nama PBF</strong><br>${val(data.nama_pbf)}</div>
-            <div><strong>Alamat</strong><br>${val(data.alamat)}</div>
-            <div><strong>No. Telepon</strong><br>${val(data.no_telepon)}</div>
-            <div><strong>Kontak Person</strong><br>${val(data.kontak_person)}</div>
-            <div><strong>Keterangan</strong><br>${val(data.keterangan)}</div>
-        </div>`;
+        <div class="detail-grid">
+
+            <div class="detail-item">
+                <strong>Nama PBF</strong>
+                ${val(data.nama_pbf)}
+            </div>
+
+            <div class="detail-item">
+                <strong>Alamat</strong>
+                ${val(data.alamat)}
+            </div>
+
+            <div class="detail-item">
+                <strong>No Telepon</strong>
+                ${val(data.no_telepon)}
+            </div>
+
+            <div class="detail-item">
+                <strong>Kontak Person</strong>
+                ${val(data.kontak_person)}
+            </div>
+
+            <div class="detail-item">
+                <strong>Keterangan</strong>
+                ${val(data.keterangan)}
+            </div>
+
+        </div>
+    `;
+
     openModal('modalDetailPBF');
 }
-document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)closeModal(el.id)})});
+
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+
+    el.addEventListener('click',function(e){
+
+        if(e.target === el){
+            el.classList.remove('active');
+        }
+
+    });
+
+});
 </script>
-<style>
-body{
-    min-height:100vh;
-    background: linear-gradient(135deg,#cfe9ff 0%,#ffffff 45%,#dbeafe 100%);
-    color:#0f172a;
-    font-family:'Poppins',sans-serif;
-}
 
-.dashboard-wrapper{ padding:40px; }
-
-.glass-container{
-    background: rgba(255,255,255,0.60);
-    backdrop-filter: blur(26px);
-    border:1px solid rgba(255,255,255,0.9);
-    border-radius:28px;
-    padding:28px;
-    box-shadow:0 15px 45px rgba(15,23,42,0.12);
-}
-
-.glass-inner{
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(22px);
-    border:1px solid rgba(255,255,255,0.85);
-    border-radius:24px;
-    padding:24px;
-    box-shadow:0 10px 35px rgba(15,23,42,0.10);
-}
-
-/* Card & Table ikut glass */
-.card{
-    background:rgba(255,255,255,0.65) !important;
-    backdrop-filter:blur(18px);
-    border-radius:22px !important;
-    border:1px solid rgba(255,255,255,0.8) !important;
-}
-
-table thead th{
-    background:rgba(219,234,254,0.85) !important;
-    border:none !important;
-}
-
-table tbody td{
-    background:rgba(255,255,255,0.65) !important;
-}
-
-/* Modal glass */
-.modal-content, .modal{
-    background:rgba(255,255,255,0.75) !important;
-    backdrop-filter:blur(30px);
-    border-radius:26px !important;
-}
-
-/* Header hitam */
-.page-header h1,
-.page-header p{
-    color:#000 !important;
-}
-</style>
-    </div>
-  </div>
-</div>
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>
