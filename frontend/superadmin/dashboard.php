@@ -12,6 +12,48 @@ $data  = getDashboardData();
 $flash = getFlashMessage();
 
 require_once __DIR__ . '/../templates/sidebar.php';
+
+/* =========================
+   DATA CARD
+========================= */
+
+$cards = [
+    [
+        'class' => 'stok',
+        'title' => 'JUMLAH STOK',
+        'value' => number_format($data['total_stok'] ?? 0),
+        'icon'  => 'inventory_2',
+        'link'  => 'manajemen_stok.php'
+    ],
+    [
+        'class' => 'faktur',
+        'title' => 'JUMLAH FAKTUR',
+        'value' => number_format($data['total_faktur'] ?? 0),
+        'icon'  => 'receipt_long',
+        'link'  => 'manajemen_stok.php'
+    ],
+    [
+        'class' => 'piutang',
+        'title' => 'PIUTANG BELUM LUNAS',
+        'value' => 'Rp ' . number_format($data['piutang_belum_lunas_total'] ?? 0,0,',','.'),
+        'icon'  => 'payments',
+        'link'  => 'piutang.php?status=belum_lunas'
+    ],
+    [
+        'class' => 'expired',
+        'title' => 'OBAT EXPIRED',
+        'value' => number_format($data['expiring_6months_count'] ?? 0),
+        'icon'  => 'warning_amber',
+        'link'  => 'laporan_expired.php'
+    ],
+    [
+        'class' => 'log',
+        'title' => 'LOG AKTIVITAS',
+        'value' => number_format($data['total_log'] ?? 0),
+        'icon'  => 'history',
+        'link'  => 'log_aktivitas.php'
+    ]
+];
 ?>
 
 <!-- BACKGROUND -->
@@ -45,9 +87,7 @@ body{
         );
 }
 
-/* =========================
-   BACKGROUND HIDUP
-========================= */
+/* BACKGROUND */
 
 body::before{
     content:'';
@@ -60,9 +100,7 @@ body::before{
         radial-gradient(circle at 50% 80%, rgba(125,211,252,0.18), transparent 30%);
 
     filter:blur(70px);
-
     animation:bgMove 20s linear infinite;
-
     z-index:-5;
 }
 
@@ -70,17 +108,12 @@ body::after{
     content:'';
     position:fixed;
     inset:0;
-
-    background:
-        rgba(255,255,255,0.05);
-
+    background:rgba(255,255,255,0.05);
     backdrop-filter:blur(10px);
-
     z-index:-4;
 }
 
 @keyframes bgMove{
-
     0%{
         transform:translate(0,0) rotate(0deg);
     }
@@ -120,10 +153,6 @@ body::after{
         rgba(255,255,255,0.95),
         rgba(255,255,255,0.08));
 
-    box-shadow:
-        inset 0 0 35px rgba(255,255,255,0.9),
-        0 0 45px rgba(59,130,246,0.20);
-
     animation:floating 15s ease-in-out infinite;
 
     z-index:-2;
@@ -153,23 +182,16 @@ body::after{
 }
 
 @keyframes floating{
-
     0%,100%{
-        transform:
-            translateY(0)
-            translateX(0);
+        transform:translateY(0) translateX(0);
     }
 
     50%{
-        transform:
-            translateY(-25px)
-            translateX(15px);
+        transform:translateY(-25px) translateX(15px);
     }
 }
 
-/* =========================
-   CONTAINER
-========================= */
+/* CONTAINER */
 
 .dashboard-container{
     padding:28px;
@@ -180,9 +202,7 @@ body::after{
     z-index:10;
 }
 
-/* =========================
-   GLASS EFFECT
-========================= */
+/* GLASS */
 
 .glass{
     position:relative;
@@ -195,8 +215,7 @@ body::after{
             rgba(255,255,255,0.28)
         );
 
-    border:
-        1px solid rgba(255,255,255,0.75);
+    border:1px solid rgba(255,255,255,0.75);
 
     backdrop-filter:blur(24px);
     -webkit-backdrop-filter:blur(24px);
@@ -235,13 +254,65 @@ body::after{
     100%{left:150%;}
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .page-header{
-    padding:34px;
-    border-radius:30px;
+    position:relative;
+    overflow:hidden;
+
+    padding:42px 48px;
+    border-radius:36px;
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,255,255,0.65),
+            rgba(255,255,255,0.35)
+        );
+
+    border:1px solid rgba(255,255,255,0.9);
+
+    backdrop-filter:blur(30px);
+    -webkit-backdrop-filter:blur(30px);
+
+    box-shadow:
+        0 30px 80px rgba(15,23,42,0.12),
+        inset 0 1px 0 rgba(255,255,255,1);
+}
+
+/* glow premium di pojok */
+.page-header::before{
+    content:'';
+    position:absolute;
+    right:-80px;
+    top:-80px;
+    width:260px;
+    height:260px;
+    border-radius:50%;
+
+    background:radial-gradient(circle, rgba(59,130,246,.35), transparent 70%);
+    filter:blur(55px);
+}
+
+/* garis tipis elegan di bawah */
+.page-header::after{
+    content:'';
+    position:absolute;
+    left:48px;
+    right:48px;
+    bottom:0;
+    height:1px;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(15,23,42,.12),
+        transparent
+    );
 }
 
 .page-header h1{
@@ -256,9 +327,7 @@ body::after{
     line-height:1.7;
 }
 
-/* =========================
-   ALERT
-========================= */
+/* ALERT */
 
 .alert{
     padding:16px 20px;
@@ -267,9 +336,7 @@ body::after{
     font-size:13px;
 }
 
-/* =========================
-   STATS
-========================= */
+/* STATS */
 
 .stats-grid{
     display:grid;
@@ -281,39 +348,36 @@ body::after{
     padding:22px;
     border-radius:28px;
     position:relative;
-
     transition:0.35s ease;
 }
 
 .stat-card:hover{
-    transform:
-        translateY(-8px)
-        scale(1.02);
-
+    transform:translateY(-10px) scale(1.025);
     box-shadow:
-        0 20px 40px rgba(37,99,235,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.9);
+        0 25px 60px rgba(15,23,42,0.18),
+        0 8px 20px rgba(15,23,42,0.12);
 }
 
-.stat-card::after{
-    content:'';
-    position:absolute;
-    inset:0;
+/* WARNA CARD — NETRAL GLASS */
 
-    background:
-        radial-gradient(circle at top right,
-        rgba(59,130,246,0.12),
-        transparent 40%);
-
-    pointer-events:none;
+.stat-card.stok,
+.stat-card.faktur,
+.stat-card.piutang,
+.stat-card.expired,
+.stat-card.log{
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.7);
+    backdrop-filter:blur(24px);
 }
 
 /* ICON */
 
 .icon-box{
+     box-shadow:
+        0 10px 25px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,.4);
     width:62px;
     height:62px;
-
     border-radius:20px;
 
     display:flex;
@@ -321,16 +385,26 @@ body::after{
     justify-content:center;
 
     margin-bottom:18px;
+}
 
-    background:
-        linear-gradient(
-            135deg,
-            #60a5fa,
-            #2563eb
-        );
+.stok .icon-box{
+    background:linear-gradient(135deg,#60a5fa,#2563eb);
+}
 
-    box-shadow:
-        0 14px 30px rgba(37,99,235,0.28);
+.faktur .icon-box{
+    background:linear-gradient(135deg,#a78bfa,#7c3aed);
+}
+
+.piutang .icon-box{
+    background:linear-gradient(135deg,#34d399,#059669);
+}
+
+.expired .icon-box{
+    background:linear-gradient(135deg,#f87171,#dc2626);
+}
+
+.log .icon-box{
+    background:linear-gradient(135deg,#fbbf24,#d97706);
 }
 
 .icon-box .material-icons-round{
@@ -341,14 +415,16 @@ body::after{
 /* TEXT */
 
 .label{
-    font-size:11px;
+    font-size:12px;
+    opacity:.75;
     font-weight:700;
-    letter-spacing:1.2px;
-    color:#64748b;
+    letter-spacing:1px;
+    color:#475569;
 }
 
 .value{
-    font-size:30px;
+    font-size:34px;
+    letter-spacing:1px;
     font-weight:700;
     margin:10px 0;
     color:#0f172a;
@@ -356,13 +432,14 @@ body::after{
 
 .sub-label{
     font-size:12px;
-    color:#94a3b8;
+    color:#64748b;
     margin-bottom:18px;
 }
 
 /* BUTTON */
 
 .btn{
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
     width:100%;
 
     display:flex;
@@ -379,29 +456,35 @@ body::after{
 
     color:#fff;
 
-    background:
-        linear-gradient(
-            135deg,
-            #3b82f6,
-            #2563eb
-        );
+    transition:.3s ease;
+}
 
-    box-shadow:
-        0 10px 22px rgba(37,99,235,0.24);
+.stok .btn{
+    background:linear-gradient(135deg,#60a5fa,#2563eb);
+}
 
-    transition:0.3s ease;
+.faktur .btn{
+    background:linear-gradient(135deg,#a78bfa,#7c3aed);
+}
+
+.piutang .btn{
+    background:linear-gradient(135deg,#34d399,#059669);
+}
+
+.expired .btn{
+    background:linear-gradient(135deg,#f87171,#dc2626);
+}
+
+.log .btn{
+    background:linear-gradient(135deg,#fbbf24,#d97706);
 }
 
 .btn:hover{
-    transform:translateY(-2px);
-
-    box-shadow:
-        0 14px 26px rgba(37,99,235,0.34);
+     transform:translateY(-3px);
+    box-shadow:0 14px 26px rgba(0,0,0,.25);
 }
 
-/* =========================
-   BOTTOM
-========================= */
+/* BOTTOM */
 
 .bottom-grid{
     display:grid;
@@ -409,9 +492,8 @@ body::after{
     gap:22px;
 }
 
-/* SUMMARY */
-
-.summary-box{
+.summary-box,
+.calendar-box{
     padding:24px;
     border-radius:28px;
 }
@@ -429,20 +511,13 @@ body::after{
 }
 
 .summary-card{
-    padding:20px;
+      padding:20px;
     border-radius:22px;
 
-    background:
-        rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.45);
+    border:1px solid rgba(255,255,255,0.7);
 
-    border:
-        1px solid rgba(255,255,255,0.7);
-
-    transition:0.3s ease;
-}
-
-.summary-card:hover{
-    transform:translateY(-6px);
+    box-shadow:0 12px 30px rgba(15,23,42,.08);
 }
 
 .summary-label{
@@ -462,13 +537,7 @@ body::after{
     color:#94a3b8;
 }
 
-/* =========================
-   CALENDAR
-========================= */
-
 .calendar-box{
-    padding:28px;
-    border-radius:28px;
     text-align:center;
 }
 
@@ -502,12 +571,9 @@ body::after{
     color:#64748b;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media(max-width:1400px){
-
     .stats-grid{
         grid-template-columns:repeat(3,1fr);
     }
@@ -555,7 +621,7 @@ body::after{
         </h1>
 
         <p>
-            Kelola seluruh sistem Apotek Ananda melalui dashboard modern dengan tampilan glassmorphism premium.
+            Pantau dan kelola seluruh data, stok obat, transaksi, serta aktivitas pengguna Apotek Ananda dari satu tempat.
         </p>
 
     </div>
@@ -570,74 +636,36 @@ body::after{
     <!-- STATS -->
     <div class="stats-grid">
 
-        <?php
-        $cards = [
-            [
-                'title'=>'JUMLAH STOK',
-                'value'=>$data['total_stok'],
-                'icon'=>'inventory_2',
-                'link'=>'manajemen_stok.php'
-            ],
-            [
-                'title'=>'JUMLAH FAKTUR',
-                'value'=>$data['total_faktur'],
-                'icon'=>'receipt_long',
-                'link'=>'manajemen_stok.php'
-            ],
-            [
-                'title'=>'PIUTANG BELUM LUNAS',
-                'value'=>'Rp '.number_format($data['piutang_belum_lunas_total'] ?? 0,0,',','.'),
-                'icon'=>'payments',
-                'link'=>'piutang.php?status=belum_lunas'
-            ],
-            [
-                'title'=>'OBAT EXPIRED',
-                'value'=>number_format($data['expiring_6months_count'] ?? 0),
-                'icon'=>'warning_amber',
-                'link'=>'laporan_expired.php'
-            ],
-            [
-                'title'=>'LOG AKTIVITAS',
-                'value'=>number_format($data['total_log']),
-                'icon'=>'history',
-                'link'=>'log_aktivitas.php'
-            ]
-        ];
+        <?php foreach($cards as $card): ?>
 
-        foreach($cards as $card):
-        ?>
+            <div class="stat-card glass <?= $card['class'] ?>">
 
-        <div class="stat-card glass">
+                <div class="icon-box">
+                    <span class="material-icons-round">
+                        <?= $card['icon'] ?>
+                    </span>
+                </div>
 
-            <div class="icon-box">
-                <span class="material-icons-round">
-                    <?= $card['icon'] ?>
-                </span>
+                <div class="label">
+                    <?= $card['title'] ?>
+                </div>
+
+                <div class="value">
+                    <?= $card['value'] ?>
+                </div>
+
+                <div class="sub-label">
+                    Data terbaru sistem
+                </div>
+
+                <a
+                    href="<?= BASE_URL ?>/frontend/superadmin/<?= $card['link'] ?>"
+                    class="btn"
+                >
+                    Lihat Detail
+                </a>
+
             </div>
-
-            <div class="label">
-                <?= $card['title'] ?>
-            </div>
-
-            <div class="value">
-                <?= is_numeric($card['value'])
-                    ? number_format($card['value'])
-                    : $card['value']
-                ?>
-            </div>
-
-            <div class="sub-label">
-                Data terbaru sistem
-            </div>
-
-            <a
-                href="<?= BASE_URL ?>/frontend/superadmin/<?= $card['link'] ?>"
-                class="btn"
-            >
-                Lihat Detail
-            </a>
-
-        </div>
 
         <?php endforeach; ?>
 
@@ -646,7 +674,6 @@ body::after{
     <!-- BOTTOM -->
     <div class="bottom-grid">
 
-        <!-- SUMMARY -->
         <div class="summary-box glass">
 
             <div class="section-title">
@@ -707,7 +734,6 @@ body::after{
 
         </div>
 
-        <!-- CALENDAR -->
         <div class="calendar-box glass">
 
             <div class="section-title">
