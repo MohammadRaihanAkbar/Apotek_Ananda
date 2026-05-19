@@ -2,10 +2,12 @@
 /**
  * Laporan Kadaluwarsa - otomatis dari obat_batch.
  */
+
 require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireSuperAdmin();
 
 $pageTitle = 'Laporan Kadaluwarsa';
+
 require_once __DIR__ . '/../templates/header.php';
 
 require_once __DIR__ . '/../../backend/models/obat_expired.php';
@@ -39,11 +41,10 @@ $queryString = http_build_query(
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
 
-<!-- BACKGROUND -->
+<!-- BG -->
 <div class="bg-grid"></div>
 <div class="bg-bubble one"></div>
 <div class="bg-bubble two"></div>
-<div class="bg-bubble three"></div>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -71,22 +72,20 @@ body{
     position:relative;
 }
 
-/* BACKGROUND HIDUP */
+/* BG */
 body::before{
     content:'';
     position:fixed;
     inset:-20%;
 
     background:
-        radial-gradient(circle, rgba(59,130,246,0.16) 0%, transparent 60%),
+        radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 60%),
         radial-gradient(circle, rgba(96,165,250,0.13) 0%, transparent 60%);
 
     background-size:700px 700px;
-
     animation:moveGlow 18s linear infinite;
 
     filter:blur(40px);
-
     z-index:-4;
 }
 
@@ -123,7 +122,6 @@ body::before{
         0 0 35px rgba(59,130,246,0.10);
 
     animation:floating 12s ease-in-out infinite;
-
     z-index:-2;
 }
 
@@ -135,33 +133,17 @@ body::before{
 }
 
 .bg-bubble.two{
-    width:280px;
-    height:280px;
-    bottom:-100px;
-    right:-60px;
+    width:260px;
+    height:260px;
+    bottom:-120px;
+    right:-80px;
     animation-duration:18s;
 }
 
-.bg-bubble.three{
-    width:140px;
-    height:140px;
-    top:50%;
-    right:15%;
-    animation-duration:14s;
-}
-
 @keyframes moveGlow{
-    0%{
-        transform:translate(0,0) rotate(0deg);
-    }
-
-    50%{
-        transform:translate(40px,-30px) rotate(180deg);
-    }
-
-    100%{
-        transform:translate(0,0) rotate(360deg);
-    }
+    0%{ transform:translate(0,0) rotate(0deg); }
+    50%{ transform:translate(40px,-30px) rotate(180deg); }
+    100%{ transform:translate(0,0) rotate(360deg); }
 }
 
 @keyframes floating{
@@ -176,7 +158,7 @@ body::before{
 
 /* WRAPPER */
 .dashboard-wrapper{
-    padding:22px;
+    padding:18px;
     position:relative;
     z-index:10;
 }
@@ -187,83 +169,71 @@ body::before{
 
     border:1px solid rgba(255,255,255,0.8);
 
-    backdrop-filter:blur(24px);
-    -webkit-backdrop-filter:blur(24px);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
 
-    border-radius:28px;
+    border-radius:24px;
 
-    padding:22px;
+    padding:18px;
 
     box-shadow:
-        0 15px 45px rgba(15,23,42,0.08),
+        0 10px 30px rgba(15,23,42,0.08),
         inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .glass-inner{
-    background:rgba(255,255,255,0.26);
+    background:rgba(255,255,255,0.28);
 
     border:1px solid rgba(255,255,255,0.7);
 
-    border-radius:24px;
+    border-radius:20px;
 
-    padding:22px;
+    padding:18px;
 }
 
 /* HEADER */
 .page-header{
-    margin-bottom:20px;
+    margin-bottom:16px;
 }
 
 .page-header h1{
-    font-size:28px;
+    font-size:24px;
     font-weight:700;
-    color:#0f172a;
-    margin-bottom:6px;
+    margin-bottom:3px;
 }
 
 .page-header p{
+    font-size:12px;
     color:#64748b;
-    font-size:13px;
 }
 
 /* ALERT */
 .alert{
-    padding:12px 16px;
-    border-radius:14px;
-    margin-bottom:18px;
+    padding:10px 14px;
+    border-radius:12px;
+    margin-bottom:14px;
 
-    background:rgba(255,255,255,0.7);
+    background:rgba(255,255,255,.70);
+    backdrop-filter:blur(10px);
 
-    backdrop-filter:blur(14px);
-
-    border:none;
+    font-size:13px;
 }
 
 /* STATS */
 .stats-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:14px;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:12px;
 
-    margin-bottom:20px;
+    margin-bottom:16px;
 }
 
 .stat-card{
+    border-radius:18px;
+    padding:16px;
+    color:#fff;
     position:relative;
     overflow:hidden;
-
-    border-radius:20px;
-
-    padding:18px;
-
-    min-height:100px;
-
-    color:#fff;
-
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.08);
-
-    border:1px solid rgba(255,255,255,.35);
 }
 
 .stat-card::before{
@@ -271,13 +241,13 @@ body::before{
 
     position:absolute;
 
-    width:120px;
-    height:120px;
+    width:100px;
+    height:100px;
 
     border-radius:50%;
 
-    top:-40px;
-    right:-30px;
+    top:-30px;
+    right:-25px;
 
     background:rgba(255,255,255,.15);
 }
@@ -295,92 +265,84 @@ body::before{
 }
 
 .stat-value{
-    font-size:24px;
+    font-size:22px;
     font-weight:700;
     position:relative;
     z-index:2;
 }
 
 .stat-label{
-    margin-top:6px;
-    font-size:12px;
-    opacity:.92;
+    margin-top:5px;
+    font-size:11px;
+    opacity:.9;
     position:relative;
     z-index:2;
 }
 
-/* CARD GLASS */
+/* FILTER */
 .glass-card{
-    background:rgba(255,255,255,0.36);
+    background:rgba(255,255,255,.34);
 
-    border:1px solid rgba(255,255,255,0.75);
+    border:1px solid rgba(255,255,255,.75);
 
-    backdrop-filter:blur(20px);
+    backdrop-filter:blur(18px);
 
-    border-radius:22px;
+    border-radius:18px;
 
-    padding:18px;
+    padding:16px;
 
-    margin-bottom:18px;
-
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.05);
+    margin-bottom:16px;
 }
 
-/* FILTER */
 .filter-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:12px;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:10px;
     align-items:end;
 }
 
 .form-group{
     display:flex;
     flex-direction:column;
-    gap:6px;
+    gap:5px;
 }
 
 .form-group label{
-    font-size:12px;
+    font-size:11px;
     font-weight:600;
     color:#334155;
 }
 
 .form-control{
-    height:42px;
+    height:40px;
 
     border:none;
 
-    background:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.60);
 
     border:1px solid rgba(255,255,255,.9);
 
-    border-radius:14px;
+    border-radius:12px;
 
     padding:0 12px;
 
     outline:none;
 
-    font-size:13px;
-
-    transition:.2s ease;
+    font-size:12px;
 }
 
 .form-control:focus{
     background:#fff;
-
-    box-shadow:
-        0 0 0 4px rgba(59,130,246,.12);
+    box-shadow:0 0 0 4px rgba(59,130,246,.12);
 }
 
 /* BUTTON */
 .btn{
     border:none !important;
 
-    border-radius:14px !important;
+    border-radius:12px !important;
 
-    padding:10px 16px !important;
+    padding:9px 14px !important;
 
     font-size:12px !important;
 
@@ -388,11 +350,11 @@ body::before{
 
     text-decoration:none !important;
 
-    transition:.25s ease;
-
     display:inline-flex;
     align-items:center;
     justify-content:center;
+
+    transition:.25s ease;
 }
 
 .btn:hover{
@@ -407,9 +369,6 @@ body::before{
         #3b82f6,
         #2563eb
     ) !important;
-
-    box-shadow:
-        0 10px 25px rgba(37,99,235,0.18);
 }
 
 .btn-secondary{
@@ -431,14 +390,15 @@ body::before{
 .action-bar{
     display:flex;
     justify-content:flex-end;
-    gap:10px;
+    gap:8px;
     flex-wrap:wrap;
+    margin-bottom:14px;
 }
 
 /* TABLE */
 .table-wrapper{
     overflow:auto;
-    border-radius:22px;
+    border-radius:18px;
 }
 
 table{
@@ -447,13 +407,13 @@ table{
 }
 
 thead th{
-    background:rgba(219,234,254,0.72);
+    background:rgba(219,234,254,0.75);
 
-    padding:14px 12px;
+    padding:12px;
 
     text-align:left;
 
-    font-size:12px;
+    font-size:11px;
     font-weight:700;
 
     color:#334155;
@@ -462,13 +422,13 @@ thead th{
 }
 
 tbody td{
-    padding:13px 12px;
+    padding:12px;
 
-    background:rgba(255,255,255,0.40);
+    background:rgba(255,255,255,0.42);
 
     border-bottom:1px solid rgba(226,232,240,0.8);
 
-    font-size:13px;
+    font-size:12px;
 
     color:#334155;
 
@@ -476,13 +436,11 @@ tbody td{
 }
 
 tbody tr{
-    transition:0.25s ease;
+    transition:.2s ease;
 }
 
 tbody tr:hover{
-    transform:scale(1.003);
-
-    background:rgba(255,255,255,0.7);
+    background:rgba(255,255,255,.7);
 }
 
 .text-center{
@@ -493,28 +451,26 @@ tbody tr:hover{
     text-align:right;
 }
 
-/* BATCH */
+/* BADGE */
 .batch-code{
     background:#dbeafe;
 
     color:#2563eb;
 
-    padding:5px 10px;
+    padding:5px 9px;
 
     border-radius:999px;
 
-    font-size:11px;
-
+    font-size:10px;
     font-weight:700;
 }
 
-/* BADGE */
 .badge{
-    padding:7px 12px;
+    padding:6px 10px;
 
     border-radius:999px;
 
-    font-size:11px;
+    font-size:10px;
 
     font-weight:700;
 
@@ -532,14 +488,15 @@ tbody tr:hover{
 }
 
 .empty-state{
-    padding:35px;
+    padding:30px;
     color:#94a3b8;
 }
 
+/* MOBILE */
 @media(max-width:768px){
 
     .dashboard-wrapper{
-        padding:14px;
+        padding:12px;
     }
 
     .glass-container,
@@ -547,12 +504,8 @@ tbody tr:hover{
         padding:14px;
     }
 
-    .page-header h1{
-        font-size:24px;
-    }
-
-    table{
-        min-width:1000px;
+    .filter-grid{
+        grid-template-columns:1fr;
     }
 
     .action-bar{
@@ -561,6 +514,10 @@ tbody tr:hover{
 
     .action-bar .btn{
         width:100%;
+    }
+
+    table{
+        min-width:900px;
     }
 }
 </style>
@@ -573,10 +530,7 @@ tbody tr:hover{
 
             <div class="page-header">
                 <h1>Laporan Kadaluwarsa</h1>
-
-                <p>
-                    Monitoring batch obat expired dan mendekati expired maksimal 6 bulan.
-                </p>
+                <p>Monitoring obat expired dan mendekati expired.</p>
             </div>
 
             <?php if ($flash): ?>
@@ -594,7 +548,7 @@ tbody tr:hover{
                     </div>
 
                     <div class="stat-label">
-                        Obat Expired
+                        Expired
                     </div>
                 </div>
 
@@ -614,7 +568,7 @@ tbody tr:hover{
                     </div>
 
                     <div class="stat-label">
-                        Estimasi Kerugian
+                        Kerugian
                     </div>
                 </div>
 
@@ -633,7 +587,7 @@ tbody tr:hover{
                             <select name="pbf_id" class="form-control">
 
                                 <option value="">
-                                    Semua PBF
+                                    Semua
                                 </option>
 
                                 <?php foreach ($pbfList as $pbf): ?>
@@ -653,7 +607,7 @@ tbody tr:hover{
                         </div>
 
                         <div class="form-group">
-                            <label>Dari Exp</label>
+                            <label>Dari</label>
 
                             <input
                                 type="date"
@@ -664,7 +618,7 @@ tbody tr:hover{
                         </div>
 
                         <div class="form-group">
-                            <label>Sampai Exp</label>
+                            <label>Sampai</label>
 
                             <input
                                 type="date"
@@ -689,7 +643,7 @@ tbody tr:hover{
                                         ? 'selected'
                                         : '' ?>
                                 >
-                                    Sudah Expired
+                                    Expired
                                 </option>
 
                                 <option
@@ -718,7 +672,7 @@ tbody tr:hover{
                             >
                         </div>
 
-                        <div style="display:flex;gap:10px;">
+                        <div style="display:flex;gap:8px;">
 
                             <button type="submit" class="btn btn-primary">
                                 Cari
@@ -737,21 +691,21 @@ tbody tr:hover{
             </div>
 
             <!-- ACTION -->
-            <div class="action-bar" style="margin-bottom:18px;">
+            <div class="action-bar">
 
                 <a
                     href="<?= BASE_URL ?>/backend/controllers/expired_controller.php?action=export_pdf&<?= htmlspecialchars($queryString) ?>"
                     class="btn btn-danger"
                     target="_blank"
                 >
-                    📄 PDF
+                    PDF
                 </a>
 
                 <a
                     href="<?= BASE_URL ?>/backend/controllers/expired_controller.php?action=export_excel&<?= htmlspecialchars($queryString) ?>"
                     class="btn btn-success"
                 >
-                    📊 Excel
+                    Excel
                 </a>
 
             </div>
@@ -766,14 +720,12 @@ tbody tr:hover{
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Obat</th>
-                                <th>No Batch</th>
+                                <th>Obat</th>
+                                <th>Batch</th>
                                 <th>Expired</th>
                                 <th>Sisa</th>
                                 <th>Qty</th>
-                                <th>Satuan</th>
                                 <th>PBF</th>
-                                <th>Faktur</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -783,8 +735,8 @@ tbody tr:hover{
                             <?php if (empty($expiredList)): ?>
 
                                 <tr>
-                                    <td colspan="10" class="text-center empty-state">
-                                        Tidak ada data expired.
+                                    <td colspan="8" class="text-center empty-state">
+                                        Tidak ada data.
                                     </td>
                                 </tr>
 
@@ -802,6 +754,10 @@ tbody tr:hover{
                                             <strong>
                                                 <?= htmlspecialchars($item['nama_obat']) ?>
                                             </strong>
+
+                                            <div style="font-size:10px;color:#94a3b8;margin-top:3px;">
+                                                <?= htmlspecialchars($item['satuan']) ?>
+                                            </div>
                                         </td>
 
                                         <td>
@@ -823,15 +779,7 @@ tbody tr:hover{
                                         </td>
 
                                         <td>
-                                            <?= htmlspecialchars($item['satuan']) ?>
-                                        </td>
-
-                                        <td>
                                             <?= htmlspecialchars($item['nama_pbf']) ?>
-                                        </td>
-
-                                        <td>
-                                            <?= htmlspecialchars($item['no_faktur']) ?>
                                         </td>
 
                                         <td>
