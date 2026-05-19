@@ -1,141 +1,279 @@
 <?php
 /**
  * Log Aktivitas - Super Admin - Apotek Ananda Jadimulya
- * Desain premium dengan filter card sesuai screenshot.
+ * FIX MOBILE FILTER FULL RESPONSIVE
  */
+
 require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireSuperAdmin();
 
 $pageTitle = 'Log Aktivitas';
-require_once __DIR__ . '/../templates/header.php';
 
+require_once __DIR__ . '/../templates/header.php';
 require_once __DIR__ . '/../../backend/controllers/log_controller.php';
+
 $logs = getLogData();
 $actions = getLogActions();
 $flash = getFlashMessage();
 
-// Active filters
 $filterRole = $_GET['role'] ?? '';
 $filterDate = $_GET['date'] ?? '';
 $filterAksi = $_GET['aksi'] ?? '';
 
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
+
 <div class="dashboard-wrapper">
-  <div class="glass-container">
-    <div class="glass-inner">
-<div class="page-header">
-    <h1>Log Aktivitas</h1>
-    <p>Pantau semua jejak aktivitas pengguna dalam sistem secara real-time.</p>
+
+    <div class="glass-container">
+
+        <div class="glass-inner">
+
+            <div class="page-header">
+                <h1>Log Aktivitas</h1>
+                <p>
+                    Pantau semua jejak aktivitas pengguna dalam sistem secara real-time.
+                </p>
+            </div>
+
+            <?php if ($flash): ?>
+                <div class="alert alert-<?= $flash['type'] ?>">
+                    <?= htmlspecialchars($flash['message']) ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- FILTER -->
+            <form method="GET" class="filter-grid">
+
+                <div class="filter-card">
+
+                    <label>Filter Peran</label>
+
+                    <select name="role" class="form-control">
+
+                        <option value="">Semua Role</option>
+
+                        <option
+                            value="super_admin"
+                            <?= $filterRole === 'super_admin' ? 'selected' : '' ?>
+                        >
+                            Admin
+                        </option>
+
+                        <option
+                            value="admin"
+                            <?= $filterRole === 'admin' ? 'selected' : '' ?>
+                        >
+                            Staff
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="filter-card">
+
+                    <label>Rentang Waktu</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        class="form-control"
+                        value="<?= $filterDate ?>"
+                    >
+
+                </div>
+
+                <div class="filter-card">
+
+                    <label>Kategori Aksi</label>
+
+                    <select name="aksi" class="form-control">
+
+                        <option value="">Semua Aksi</option>
+
+                        <?php foreach ($actions as $action): ?>
+
+                            <option
+                                value="<?= $action ?>"
+                                <?= $filterAksi === $action ? 'selected' : '' ?>
+                            >
+                                <?= $action ?>
+                            </option>
+
+                        <?php endforeach; ?>
+
+                    </select>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary filter-btn">
+                    Terapkan Filter
+                </button>
+
+            </form>
+
+            <!-- TABLE -->
+            <div class="card">
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>NO.</th>
+                                <th>WAKTU</th>
+                                <th>USER</th>
+                                <th>ROLE</th>
+                                <th>AKSI</th>
+                                <th>KETERANGAN</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <?php if (empty($logs)): ?>
+
+                            <tr>
+                                <td colspan="6" class="empty">
+                                    Tidak ada catatan aktivitas ditemukan.
+                                </td>
+                            </tr>
+
+                        <?php else: ?>
+
+                            <?php foreach ($logs as $i => $log): ?>
+
+                            <tr>
+
+                                <td class="number">
+                                    <?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?>
+                                </td>
+
+                                <td>
+
+                                    <div class="time">
+                                        <?= date('H:i:s', strtotime($log['created_at'])) ?>
+                                    </div>
+
+                                    <div class="date">
+                                        <?= date('d F Y', strtotime($log['created_at'])) ?>
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="username">
+                                        <?= htmlspecialchars($log['nama_lengkap']) ?>
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge <?= $log['role'] === 'super_admin' ? 'badge-info' : 'badge-success' ?>">
+                                        <?= $log['role'] === 'super_admin' ? 'Admin' : 'Staff' ?>
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="aksi-wrap">
+
+                                        <span class="material-icons-round action-icon">
+
+                                            <?php
+                                            if (strpos($log['aksi'], 'Tambah') !== false) {
+                                                echo 'add_circle';
+                                            } elseif (strpos($log['aksi'], 'Edit') !== false) {
+                                                echo 'edit';
+                                            } elseif (strpos($log['aksi'], 'Hapus') !== false) {
+                                                echo 'delete_forever';
+                                            } elseif (strpos($log['aksi'], 'Login') !== false) {
+                                                echo 'login';
+                                            } elseif (strpos($log['aksi'], 'Logout') !== false) {
+                                                echo 'logout';
+                                            } else {
+                                                echo 'history';
+                                            }
+                                            ?>
+
+                                        </span>
+
+                                        <?= htmlspecialchars($log['aksi']) ?>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="desc">
+                                        <?= htmlspecialchars($log['keterangan']) ?>
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php endif; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="log-footer">
+
+                <div>
+                    Showing <?= count($logs) ?> results
+                </div>
+
+                <div class="pagination">
+
+                    <button class="btn btn-outline btn-sm" disabled>
+                        <span class="material-icons-round">
+                            chevron_left
+                        </span>
+                    </button>
+
+                    <button class="btn btn-primary btn-sm">
+                        1
+                    </button>
+
+                    <button class="btn btn-outline btn-sm" disabled>
+                        <span class="material-icons-round">
+                            chevron_right
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<?php if ($flash): ?>
-    <div class="alert alert-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['message']) ?></div>
-<?php endif; ?>
-
-<!-- Log Filter Cards -->
-<form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 150px; gap: 20px; margin-bottom: 30px;">
-    <div class="card" style="margin-bottom:0; padding: 15px 20px;">
-        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Filter Peran</label>
-        <select name="role" class="form-control" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
-            <option value="">Semua Role</option>
-            <option value="super_admin" <?= $filterRole === 'super_admin' ? 'selected' : '' ?>>Admin</option>
-            <option value="admin" <?= $filterRole === 'admin' ? 'selected' : '' ?>>Staff</option>
-        </select>
-    </div>
-    
-    <div class="card" style="margin-bottom:0; padding: 15px 20px;">
-        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Rentang Waktu</label>
-        <input type="date" name="date" class="form-control" value="<?= $filterDate ?>" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
-    </div>
-    
-    <div class="card" style="margin-bottom:0; padding: 15px 20px;">
-        <label style="display:block; font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">Kategori Aksi</label>
-        <select name="aksi" class="form-control" style="border:none; padding:0; height:auto; font-weight:600; color:#1e293b;">
-            <option value="">Semua Aksi</option>
-            <?php foreach ($actions as $action): ?>
-                <option value="<?= $action ?>" <?= $filterAksi === $action ? 'selected' : '' ?>><?= $action ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    
-    <button type="submit" class="btn btn-primary" style="height: 100%; border-radius: 20px; justify-content: center;">
-        Terapkan Filter
-    </button>
-</form>
-
-<!-- Log Table Card -->
-<div class="card">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>NO.</th>
-                    <th>WAKTU</th>
-                    <th>USER</th>
-                    <th>ROLE</th>
-                    <th>AKSI</th>
-                    <th>KETERANGAN</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($logs)): ?>
-                    <tr><td colspan="6" class="text-center" style="padding:40px; color:#94a3b8;">Tidak ada catatan aktivitas ditemukan.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($logs as $i => $log): ?>
-                    <tr>
-                        <td style="font-weight:600; color:#94a3b8;"><?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?></td>
-                        <td>
-                            <div style="font-weight:700; color:#1e293b;"><?= date('H:i:s', strtotime($log['created_at'])) ?></div>
-                            <div style="font-size:11px; color:#94a3b8;"><?= date('d F Y', strtotime($log['created_at'])) ?></div>
-                        </td>
-                        <td>
-                            <div style="font-weight:600; color:#1e293b;"><?= htmlspecialchars($log['nama_lengkap']) ?></div>
-                        </td>
-                        <td>
-                            <span class="badge <?= $log['role'] === 'super_admin' ? 'badge-info' : 'badge-success' ?>" style="font-size:10px;">
-                                <?= $log['role'] === 'super_admin' ? 'Admin' : 'Staff' ?>
-                            </span>
-                        </td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:8px; font-weight:600; color: var(--success);">
-                                <span class="material-icons-round" style="font-size:18px;">
-                                    <?php 
-                                    if (strpos($log['aksi'], 'Tambah') !== false) echo 'add_circle';
-                                    elseif (strpos($log['aksi'], 'Edit') !== false) echo 'edit';
-                                    elseif (strpos($log['aksi'], 'Hapus') !== false) echo 'delete_forever';
-                                    elseif (strpos($log['aksi'], 'Login') !== false) echo 'login';
-                                    elseif (strpos($log['aksi'], 'Logout') !== false) echo 'logout';
-                                    else echo 'history';
-                                    ?>
-                                </span>
-                                <?= htmlspecialchars($log['aksi']) ?>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-size:13px; color:#64748b; max-width:400px;"><?= htmlspecialchars($log['keterangan']) ?></div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; color:#94a3b8; font-size:13px;">
-    <div>Showing <?= count($logs) ?> results</div>
-    <div style="display:flex; gap:5px;">
-        <button class="btn btn-outline btn-sm" disabled><span class="material-icons-round">chevron_left</span></button>
-        <button class="btn btn-primary btn-sm">1</button>
-        <button class="btn btn-outline btn-sm" disabled><span class="material-icons-round">chevron_right</span></button>
-    </div>
-</div>
 <!-- BACKGROUND -->
 <div class="bg-bubble one"></div>
 <div class="bg-bubble two"></div>
 
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root{
@@ -169,7 +307,7 @@ body{
     position:relative;
 }
 
-/* GLOW BACKGROUND */
+/* GLOW */
 body::before{
     content:'';
     position:fixed;
@@ -305,26 +443,25 @@ body::after{
 
 /* HEADER */
 .page-header{
-    margin-bottom:14px;
+    margin-bottom:18px;
 }
 
 .page-header h1{
-    font-size:22px;
+    font-size:24px;
     font-weight:700;
     color:#111827;
-    margin-bottom:2px;
 }
 
 .page-header p{
     color:#64748b;
-    font-size:11px;
+    font-size:12px;
 }
 
 /* ALERT */
 .alert{
-    padding:10px 12px;
-    border-radius:12px;
-    margin-bottom:12px;
+    padding:12px 14px;
+    border-radius:14px;
+    margin-bottom:16px;
     font-size:12px;
 
     background:rgba(255,255,255,.60);
@@ -337,9 +474,12 @@ body::after{
 /* FILTER */
 .filter-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:10px;
-    margin-bottom:14px;
+    grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+
+    gap:14px;
+
+    margin-bottom:18px;
 }
 
 .filter-card{
@@ -349,17 +489,20 @@ body::after{
 
     backdrop-filter:blur(18px);
 
-    border-radius:16px;
+    border-radius:18px;
 
-    padding:12px;
+    padding:14px;
 }
 
 .filter-card label{
     display:block;
-    font-size:10px;
+
+    font-size:11px;
     font-weight:700;
+
     color:#64748b;
-    margin-bottom:8px;
+
+    margin-bottom:10px;
 }
 
 /* FORM */
@@ -368,15 +511,15 @@ body::after{
 
     border:none;
 
-    background:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.65);
 
     border:1px solid rgba(255,255,255,.90);
 
-    border-radius:10px;
+    border-radius:12px;
 
-    padding:9px 10px;
+    padding:12px 14px;
 
-    font-size:11px;
+    font-size:12px;
 
     outline:none;
 
@@ -387,18 +530,18 @@ body::after{
     border-color:#60a5fa;
 
     box-shadow:
-        0 0 0 3px rgba(59,130,246,.12);
+        0 0 0 4px rgba(59,130,246,.12);
 }
 
 /* BUTTON */
 .btn{
     border:none !important;
 
-    border-radius:10px !important;
+    border-radius:12px !important;
 
-    padding:8px 12px !important;
+    padding:10px 14px !important;
 
-    font-size:11px !important;
+    font-size:12px !important;
     font-weight:600 !important;
 
     cursor:pointer;
@@ -442,6 +585,10 @@ body::after{
     color:#334155 !important;
 }
 
+.filter-btn{
+    min-height:72px;
+}
+
 /* CARD */
 .card{
     background:rgba(255,255,255,.38);
@@ -473,33 +620,68 @@ table{
 thead th{
     background:rgba(219,234,254,.75);
 
-    padding:10px 10px;
+    padding:12px;
 
     text-align:left;
 
-    font-size:10px;
+    font-size:11px;
     font-weight:700;
 
     color:#334155;
 }
 
 tbody td{
-    padding:10px 10px;
+    padding:12px;
 
     background:rgba(255,255,255,.45);
 
     border-bottom:1px solid rgba(226,232,240,.7);
 
-    font-size:11px;
+    font-size:12px;
     color:#334155;
-}
-
-tbody tr{
-    transition:.2s ease;
 }
 
 tbody tr:hover{
     background:rgba(255,255,255,.70);
+}
+
+.number{
+    font-weight:700;
+    color:#94a3b8;
+}
+
+.time{
+    font-weight:700;
+    color:#1e293b;
+}
+
+.date{
+    font-size:11px;
+    color:#94a3b8;
+}
+
+.username{
+    font-weight:600;
+    color:#1e293b;
+}
+
+.desc{
+    font-size:12px;
+    color:#64748b;
+    max-width:400px;
+}
+
+.aksi-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-weight:600;
+    color:var(--success);
+}
+
+.action-icon{
+    font-size:18px;
 }
 
 /* BADGE */
@@ -520,19 +702,30 @@ tbody tr:hover{
     color:#1d4ed8;
 }
 
+.empty{
+    padding:40px;
+    text-align:center;
+    color:#94a3b8;
+}
+
 /* FOOTER */
 .log-footer{
     display:flex;
     justify-content:space-between;
     align-items:center;
 
-    margin-top:12px;
+    margin-top:14px;
 
     color:#94a3b8;
-    font-size:11px;
+    font-size:12px;
 }
 
-/* MOBILE */
+.pagination{
+    display:flex;
+    gap:6px;
+}
+
+/* MOBILE FIX */
 @media(max-width:768px){
 
     .dashboard-wrapper{
@@ -541,18 +734,43 @@ tbody tr:hover{
 
     .glass-container{
         padding:10px;
+        border-radius:18px;
     }
 
     .glass-inner{
         padding:10px;
+        border-radius:16px;
     }
 
     .page-header h1{
-        font-size:18px;
+        font-size:20px;
+    }
+
+    .page-header p{
+        font-size:11px;
     }
 
     .filter-grid{
         grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .filter-card{
+        width:100%;
+        padding:14px;
+    }
+
+    .form-control{
+        width:100%;
+        height:48px;
+        font-size:13px;
+    }
+
+    .filter-btn{
+        width:100%;
+        min-height:50px;
+        height:50px;
+        font-size:13px !important;
     }
 
     table{
@@ -561,12 +779,15 @@ tbody tr:hover{
 
     .log-footer{
         flex-direction:column;
-        gap:8px;
         align-items:flex-start;
+        gap:10px;
+    }
+
+    .pagination{
+        width:100%;
     }
 }
+
 </style>
-    </div>
-  </div>
-</div>
+
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>
