@@ -1,7 +1,6 @@
 <?php
 /**
- * Piutang - Otomatis dari faktur.
- * Tampilan modern glassmorphism compact.
+ * Piutang - Compact Glassmorphism Modern
  */
 
 require_once __DIR__ . '/../../backend/helpers/session_helper.php';
@@ -26,21 +25,13 @@ $flash          = getFlashMessage();
 require_once __DIR__ . '/../templates/sidebar.php';
 ?>
 
-<!-- BACKGROUND -->
+<!-- BG -->
 <div class="bg-grid"></div>
 <div class="bg-bubble one"></div>
 <div class="bg-bubble two"></div>
-<div class="bg-bubble three"></div>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-:root{
-    --primary:#2563eb;
-    --success:#10b981;
-    --danger:#ef4444;
-    --warning:#f59e0b;
-}
 
 *{
     margin:0;
@@ -49,43 +40,39 @@ require_once __DIR__ . '/../templates/sidebar.php';
     font-family:'Poppins',sans-serif;
 }
 
-html,body{
-    width:100%;
-    overflow-x:hidden;
-}
-
 body{
     min-height:100vh;
+    overflow-x:hidden;
     color:#0f172a;
 
     background:
         linear-gradient(
             135deg,
             #f8fbff 0%,
-            #eef5ff 45%,
+            #eef5ff 40%,
             #ffffff 100%
         );
 
     position:relative;
 }
 
-/* BACKGROUND HIDUP */
+/* BG */
 body::before{
     content:'';
     position:fixed;
     inset:-20%;
 
     background:
-        radial-gradient(circle, rgba(59,130,246,0.16) 0%, transparent 60%),
-        radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 60%);
+        radial-gradient(circle, rgba(59,130,246,.16) 0%, transparent 60%),
+        radial-gradient(circle, rgba(96,165,250,.12) 0%, transparent 60%);
 
-    background-size:600px 600px;
+    background-size:700px 700px;
 
     animation:moveGlow 18s linear infinite;
 
-    filter:blur(45px);
+    filter:blur(40px);
 
-    z-index:-5;
+    z-index:-4;
 }
 
 .bg-grid{
@@ -93,12 +80,15 @@ body::before{
     inset:0;
 
     background-image:
-        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
 
-    background-size:32px 32px;
+    background-size:40px 40px;
 
-    z-index:-4;
+    mask-image:
+        radial-gradient(circle at center, black 40%, transparent 85%);
+
+    z-index:-3;
 }
 
 .bg-bubble{
@@ -107,13 +97,15 @@ body::before{
     pointer-events:none;
 
     background:
-        radial-gradient(circle at 30% 30%,
-        rgba(255,255,255,0.95),
-        rgba(255,255,255,0.08));
+        radial-gradient(
+            circle at 30% 30%,
+            rgba(255,255,255,.95),
+            rgba(255,255,255,.08)
+        );
 
     box-shadow:
-        inset 0 0 35px rgba(255,255,255,.95),
-        0 0 45px rgba(59,130,246,.14);
+        inset 0 0 25px rgba(255,255,255,.9),
+        0 0 35px rgba(59,130,246,.10);
 
     animation:floating 12s ease-in-out infinite;
 
@@ -121,24 +113,18 @@ body::before{
 }
 
 .bg-bubble.one{
-    width:180px;
-    height:180px;
-    top:-60px;
-    left:-60px;
+    width:220px;
+    height:220px;
+    top:5%;
+    left:-80px;
 }
 
 .bg-bubble.two{
-    width:220px;
-    height:220px;
-    bottom:-80px;
-    right:-80px;
-}
-
-.bg-bubble.three{
-    width:130px;
-    height:130px;
-    top:42%;
-    right:16%;
+    width:280px;
+    height:280px;
+    bottom:-100px;
+    right:-60px;
+    animation-duration:18s;
 }
 
 @keyframes moveGlow{
@@ -147,7 +133,7 @@ body::before{
     }
 
     50%{
-        transform:translate(30px,-20px) rotate(180deg);
+        transform:translate(40px,-30px) rotate(180deg);
     }
 
     100%{
@@ -161,89 +147,109 @@ body::before{
     }
 
     50%{
-        transform:translateY(-16px);
+        transform:translateY(-20px);
     }
 }
 
 /* WRAPPER */
 .dashboard-wrapper{
-    padding:14px;
+    padding:18px;
     position:relative;
     z-index:10;
 }
 
 /* GLASS */
 .glass-container{
-    background:rgba(255,255,255,0.38);
+    background:rgba(255,255,255,.40);
 
-    border:1px solid rgba(255,255,255,0.8);
+    border:1px solid rgba(255,255,255,.8);
 
-    backdrop-filter:blur(18px);
+    backdrop-filter:blur(24px);
 
-    border-radius:22px;
+    border-radius:26px;
 
-    padding:14px;
+    padding:18px;
 
     box-shadow:
-        0 10px 30px rgba(15,23,42,0.08);
+        0 15px 45px rgba(15,23,42,.08),
+        inset 0 1px 0 rgba(255,255,255,.8);
 }
 
 .glass-inner{
-    background:rgba(255,255,255,0.28);
+    background:rgba(255,255,255,.28);
 
-    border:1px solid rgba(255,255,255,0.7);
+    border:1px solid rgba(255,255,255,.7);
 
-    border-radius:18px;
+    border-radius:22px;
 
-    padding:14px;
+    padding:18px;
 }
 
 /* HEADER */
 .page-header{
-    margin-bottom:14px;
+    margin-bottom:18px;
 }
 
 .page-header h1{
-    font-size:22px;
+    font-size:26px;
     font-weight:700;
-    margin-bottom:3px;
+    margin-bottom:4px;
 }
 
 .page-header p{
+    font-size:12px;
     color:#64748b;
-    font-size:11px;
 }
 
 /* ALERT */
 .alert{
-    padding:10px 12px;
-    border-radius:12px;
-    margin-bottom:12px;
-    font-size:12px;
+    padding:12px 14px;
+    border-radius:14px;
+    margin-bottom:16px;
 
-    background:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.7);
+
     border:1px solid rgba(255,255,255,.8);
+
+    font-size:12px;
 }
 
 /* STATS */
 .stats-grid{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    margin-bottom:14px;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+
+    margin-bottom:18px;
 }
 
 .stat-card{
-    border-radius:16px;
-    padding:12px;
+    border-radius:18px;
+    padding:16px;
     color:#fff;
-    min-height:78px;
+    min-height:90px;
     position:relative;
     overflow:hidden;
 }
 
-.stat-card.total{
-    background:linear-gradient(135deg,#3b82f6,#2563eb);
+.stat-card::before{
+    content:'';
+
+    position:absolute;
+
+    width:100px;
+    height:100px;
+
+    border-radius:50%;
+
+    top:-30px;
+    right:-20px;
+
+    background:rgba(255,255,255,.14);
+}
+
+.stat-card.primary{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
 }
 
 .stat-card.success{
@@ -255,13 +261,33 @@ body::before{
 }
 
 .stat-value{
-    font-size:16px;
+    font-size:18px;
     font-weight:700;
+    position:relative;
+    z-index:2;
 }
 
 .stat-label{
     margin-top:5px;
     font-size:11px;
+    opacity:.92;
+    position:relative;
+    z-index:2;
+}
+
+/* GLASS CARD */
+.glass-card{
+    background:rgba(255,255,255,.35);
+
+    border:1px solid rgba(255,255,255,.75);
+
+    backdrop-filter:blur(20px);
+
+    border-radius:20px;
+
+    padding:16px;
+
+    margin-bottom:16px;
 }
 
 /* FILTER */
@@ -271,148 +297,159 @@ body::before{
     align-items:center;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:12px;
 }
 
 .search-box{
-    flex:1;
     display:flex;
-    gap:6px;
+    gap:8px;
+    flex:1;
     min-width:240px;
 }
 
 .form-control{
     width:100%;
+    height:40px;
+
     border:none;
-    border-radius:10px;
-    padding:9px 12px;
-    font-size:12px;
 
-    background:rgba(255,255,255,.65);
+    background:rgba(255,255,255,.55);
 
-    border:1px solid rgba(255,255,255,.8);
+    border:1px solid rgba(255,255,255,.9);
+
+    border-radius:12px;
+
+    padding:0 12px;
 
     outline:none;
+
+    font-size:12px;
 }
 
 .form-control:focus{
-    box-shadow:0 0 0 3px rgba(59,130,246,.14);
+    background:#fff;
+
+    box-shadow:
+        0 0 0 4px rgba(59,130,246,.12);
 }
 
 /* BUTTON */
 .btn{
     border:none !important;
 
-    border-radius:10px !important;
+    border-radius:12px !important;
 
-    padding:8px 12px !important;
+    padding:9px 14px !important;
 
     font-size:11px !important;
+
     font-weight:600 !important;
 
-    cursor:pointer;
+    text-decoration:none !important;
 
-    text-decoration:none;
+    transition:.25s ease;
 
     display:inline-flex;
     align-items:center;
     justify-content:center;
 
     white-space:nowrap;
-
-    transition:.2s;
 }
 
 .btn:hover{
-    transform:translateY(-1px);
+    transform:translateY(-2px);
 }
 
 .btn-primary{
-    background:linear-gradient(135deg,#3b82f6,#2563eb)!important;
-    color:#fff!important;
+    color:#fff !important;
+
+    background:linear-gradient(
+        135deg,
+        #3b82f6,
+        #2563eb
+    ) !important;
 }
 
 .btn-success{
-    background:linear-gradient(135deg,#10b981,#059669)!important;
-    color:#fff!important;
+    background:#10b981 !important;
+    color:#fff !important;
 }
 
 .btn-danger{
-    background:linear-gradient(135deg,#ef4444,#dc2626)!important;
-    color:#fff!important;
+    background:#ef4444 !important;
+    color:#fff !important;
 }
 
 .btn-warning{
-    background:linear-gradient(135deg,#f59e0b,#d97706)!important;
-    color:#fff!important;
+    background:#f59e0b !important;
+    color:#fff !important;
 }
 
 .btn-secondary{
-    background:#e2e8f0!important;
-    color:#334155!important;
+    background:#e2e8f0 !important;
+    color:#334155 !important;
 }
 
-/* CARD */
-.card{
-    background:rgba(255,255,255,0.34);
-
-    border:1px solid rgba(255,255,255,.8);
-
-    backdrop-filter:blur(16px);
-
-    border-radius:18px;
-
-    padding:12px;
+/* TITLE */
+.section-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
     margin-bottom:12px;
 }
 
-.card-title{
-    display:flex;
-    align-items:center;
-    gap:8px;
-
-    margin-bottom:10px;
-
-    font-size:14px;
+.section-title h3{
+    font-size:15px;
     font-weight:700;
 }
 
 /* TABLE */
 .table-wrapper{
     overflow:auto;
-    border-radius:14px;
+    border-radius:18px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    min-width:860px;
+    min-width:900px;
 }
 
 thead th{
-    background:rgba(219,234,254,0.75);
+    background:rgba(219,234,254,.72);
 
-    padding:10px;
+    padding:12px;
+
+    text-align:left;
 
     font-size:11px;
     font-weight:700;
 
     color:#334155;
+
+    white-space:nowrap;
 }
 
 tbody td{
-    padding:10px;
+    padding:12px;
 
-    background:rgba(255,255,255,0.45);
+    background:rgba(255,255,255,.40);
 
-    border-bottom:1px solid rgba(226,232,240,0.6);
+    border-bottom:1px solid rgba(226,232,240,.8);
 
-    font-size:11px;
+    font-size:12px;
+
+    color:#334155;
+
+    white-space:nowrap;
+}
+
+tbody tr{
+    transition:.25s ease;
 }
 
 tbody tr:hover{
-    background:rgba(255,255,255,.65);
+    background:rgba(255,255,255,.7);
 }
 
 .text-center{
@@ -421,6 +458,26 @@ tbody tr:hover{
 
 .text-right{
     text-align:right;
+}
+
+/* BADGE */
+.badge{
+    padding:6px 10px;
+
+    border-radius:999px;
+
+    font-size:10px;
+    font-weight:700;
+}
+
+.badge-danger{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.badge-success{
+    background:#dcfce7;
+    color:#16a34a;
 }
 
 /* MODAL */
@@ -445,13 +502,13 @@ tbody tr:hover{
 
 .modal{
     width:100%;
-    max-width:400px;
+    max-width:420px;
 
-    background:rgba(255,255,255,.95);
+    background:#fff;
 
-    border-radius:18px;
+    border-radius:20px;
 
-    padding:18px;
+    padding:20px;
 }
 
 .modal-header{
@@ -459,18 +516,19 @@ tbody tr:hover{
     align-items:center;
     justify-content:space-between;
 
-    margin-bottom:14px;
+    margin-bottom:16px;
 }
 
 .modal-header h3{
     font-size:18px;
+    font-weight:700;
 }
 
 .modal-close{
     border:none;
 
-    width:32px;
-    height:32px;
+    width:34px;
+    height:34px;
 
     border-radius:10px;
 
@@ -478,7 +536,7 @@ tbody tr:hover{
 
     cursor:pointer;
 
-    font-size:18px;
+    font-size:20px;
 }
 
 .form-group{
@@ -488,6 +546,7 @@ tbody tr:hover{
 .form-group label{
     display:block;
     margin-bottom:6px;
+
     font-size:12px;
     font-weight:600;
 }
@@ -495,85 +554,17 @@ tbody tr:hover{
 /* MOBILE */
 @media(max-width:768px){
 
-    .stats-grid{
-        grid-template-columns:1fr;
-    }
-
-    .filter-bar{
-        flex-direction:column;
-        align-items:stretch;
-    }
-
-    .search-box{
-        width:100%;
-    }
-
     .dashboard-wrapper{
-        padding:10px;
-    }
-}
-
-@keyframes modalShow{
-
-    from{
-        opacity:0;
-        transform:translateY(20px) scale(.96);
+        padding:12px;
     }
 
-    to{
-        opacity:1;
-        transform:translateY(0) scale(1);
-    }
-}
-
-.modal-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    margin-bottom:18px;
-}
-
-.modal-header h3{
-    font-size:22px;
-    font-weight:700;
-}
-
-.modal-close{
-    border:none;
-    background:#f1f5f9;
-
-    width:38px;
-    height:38px;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
-    font-size:22px;
-}
-
-.form-group{
-    margin-bottom:16px;
-}
-
-/* MOBILE */
-@media(max-width:768px){
-
-    .dashboard-wrapper{
+    .glass-container,
+    .glass-inner{
         padding:14px;
     }
 
-    .glass-container{
-        padding:16px;
-    }
-
-    .glass-inner{
-        padding:16px;
-    }
-
     .page-header h1{
-        font-size:24px;
+        font-size:22px;
     }
 
     .filter-bar{
@@ -585,8 +576,8 @@ tbody tr:hover{
         width:100%;
     }
 
-    .stats-grid{
-        grid-template-columns:1fr;
+    table{
+        min-width:900px;
     }
 }
 </style>
@@ -601,12 +592,12 @@ tbody tr:hover{
                 <h1>Manajemen Piutang</h1>
 
                 <p>
-                    Piutang otomatis dari faktur pembelian dan monitoring pembayaran.
+                    Monitoring pembayaran faktur pembelian.
                 </p>
             </div>
 
             <?php if ($flash): ?>
-                <div class="alert alert-<?= $flash['type'] ?>">
+                <div class="alert">
                     <?= htmlspecialchars($flash['message']) ?>
                 </div>
             <?php endif; ?>
@@ -614,13 +605,13 @@ tbody tr:hover{
             <!-- STATS -->
             <div class="stats-grid">
 
-                <div class="stat-card total">
+                <div class="stat-card primary">
                     <div class="stat-value">
                         Rp <?= number_format($summary['total_semua'] ?? 0,0,',','.') ?>
                     </div>
 
                     <div class="stat-label">
-                        💰 Total Faktur
+                        Total Faktur
                     </div>
                 </div>
 
@@ -630,7 +621,7 @@ tbody tr:hover{
                     </div>
 
                     <div class="stat-label">
-                        ✅ Lunas (<?= $summary['count_lunas'] ?? 0 ?>)
+                        Lunas (<?= $summary['count_lunas'] ?? 0 ?>)
                     </div>
                 </div>
 
@@ -640,336 +631,325 @@ tbody tr:hover{
                     </div>
 
                     <div class="stat-label">
-                        ❌ Belum Lunas (<?= $summary['count_belum_lunas'] ?? 0 ?>)
+                        Belum Lunas (<?= $summary['count_belum_lunas'] ?? 0 ?>)
                     </div>
                 </div>
 
             </div>
+
             <!-- FILTER -->
-<div class="filter-bar">
+            <div class="glass-card">
 
-    <form method="GET" class="search-box">
+                <div class="filter-bar">
 
-        <input
-            type="text"
-            name="search"
-            class="form-control autocomplete-input"
-            data-type="piutang"
-            placeholder="🔍 Cari no faktur / PBF / obat..."
-            value="<?= htmlspecialchars($search ?? '') ?>"
-            autocomplete="off"
-        >
+                    <form method="GET" class="search-box">
 
-        <button type="submit" class="btn btn-primary btn-sm">
-            Cari
-        </button>
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control autocomplete-input"
+                            data-type="piutang"
+                            placeholder="Cari no faktur / PBF / obat..."
+                            value="<?= htmlspecialchars($search ?? '') ?>"
+                            autocomplete="off"
+                        >
 
-        <a href="?" class="btn btn-secondary btn-sm">
-            Reset
-        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Cari
+                        </button>
 
-    </form>
+                        <a href="?" class="btn btn-secondary">
+                            Reset
+                        </a>
 
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    </form>
 
-        <a
-            href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_excel&search=<?= urlencode($search ?? '') ?>"
-            class="btn btn-success btn-sm"
-        >
-            📊 Excel
-        </a>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
 
-        <a
-            href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_pdf&search=<?= urlencode($search ?? '') ?>"
-            class="btn btn-danger btn-sm"
-            target="_blank"
-        >
-            📄 PDF
-        </a>
+                        <a
+                            href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_excel&search=<?= urlencode($search ?? '') ?>"
+                            class="btn btn-success"
+                        >
+                            Excel
+                        </a>
 
-    </div>
+                        <a
+                            href="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=export_pdf&search=<?= urlencode($search ?? '') ?>"
+                            class="btn btn-danger"
+                            target="_blank"
+                        >
+                            PDF
+                        </a>
 
-</div>
+                    </div>
 
-<!-- INFO -->
-<div class="card" style="border-left:4px solid #3b82f6;">
+                </div>
 
-    <strong>Catatan:</strong>
+            </div>
 
-    Tambah/edit data faktur dilakukan dari menu
-    <strong>Manajemen Stok</strong>.
-    Halaman ini hanya mengambil data faktur dan mengelola status pembayaran.
+            <!-- BELUM LUNAS -->
+            <div class="glass-card">
 
-</div>
+                <div class="section-title">
 
-<!-- BELUM LUNAS -->
-<div class="card" style="border-left:4px solid var(--danger);">
+                    <h3 style="color:#dc2626;">
+                        Belum Lunas (<?= count($listBelumLunas) ?>)
+                    </h3>
 
-    <div class="card-title" style="color:var(--danger);">
+                </div>
 
-        <span class="material-icons-round">
-            warning
-        </span>
+                <div class="table-wrapper">
 
-        Belum Lunas
-        (<?= count($listBelumLunas) ?>)
+                    <table>
 
-    </div>
+                        <thead>
 
-    <div class="table-wrapper">
+                            <tr>
+                                <th>No</th>
+                                <th>No Faktur</th>
+                                <th>PBF</th>
+                                <th>Tanggal</th>
+                                <th>Tempo</th>
+                                <th>Total</th>
+                                <th>Bukti</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
 
-        <table>
+                        </thead>
 
-            <thead>
+                        <tbody>
 
-                <tr>
-                    <th>No</th>
-                    <th>No Faktur</th>
-                    <th>PBF</th>
-                    <th>Tanggal</th>
-                    <th>Jatuh Tempo</th>
-                    <th>Item</th>
-                    <th>Total</th>
-                    <th>Bukti</th>
-                    <th>Aksi</th>
-                </tr>
+                        <?php if (empty($listBelumLunas)): ?>
 
-            </thead>
+                            <tr>
+                                <td colspan="9" class="text-center" style="padding:30px;color:#94a3b8;">
+                                    Tidak ada data
+                                </td>
+                            </tr>
 
-            <tbody>
+                        <?php else: ?>
 
-                <?php if (empty($listBelumLunas)): ?>
+                            <?php foreach ($listBelumLunas as $i => $p): ?>
 
-                    <tr>
+                                <tr>
 
-                        <td colspan="9" class="text-center" style="padding:35px;color:#94a3b8;">
-                            Tidak ada piutang belum lunas 🎉
-                        </td>
+                                    <td><?= $i + 1 ?></td>
 
-                    </tr>
+                                    <td>
+                                        <strong>
+                                            <?= htmlspecialchars($p['no_faktur']) ?>
+                                        </strong>
+                                    </td>
 
-                <?php else: ?>
+                                    <td>
+                                        <?= htmlspecialchars($p['nama_pbf']) ?>
+                                    </td>
 
-                    <?php foreach ($listBelumLunas as $i => $p): ?>
+                                    <td>
+                                        <?= htmlspecialchars($p['tanggal_faktur']) ?>
+                                    </td>
 
-                        <tr>
+                                    <td>
+                                        <?= htmlspecialchars($p['tanggal_jatuh_tempo'] ?? '-') ?>
+                                    </td>
 
-                            <td>
-                                <?= $i + 1 ?>
-                            </td>
+                                    <td class="text-right">
+                                        Rp <?= number_format($p['jumlah_harga'],0,',','.') ?>
+                                    </td>
 
-                            <td>
+                                    <td>
 
-                                <strong>
-                                    <?= htmlspecialchars($p['no_faktur']) ?>
-                                </strong>
+                                        <?php if ($p['bukti_pembayaran']): ?>
 
-                            </td>
+                                            <a
+                                                href="<?= BASE_URL ?>/frontend/superadmin/lihat_bukti.php?id=<?= $p['id_faktur'] ?>"
+                                                class="btn btn-secondary"
+                                            >
+                                                Lihat
+                                            </a>
 
-                            <td>
-                                <?= htmlspecialchars($p['nama_pbf']) ?>
-                            </td>
+                                        <?php else: ?>
 
-                            <td>
-                                <?= htmlspecialchars($p['tanggal_faktur']) ?>
-                            </td>
+                                            -
 
-                            <td>
-                                <?= htmlspecialchars($p['tanggal_jatuh_tempo'] ?? '-') ?>
-                            </td>
+                                        <?php endif; ?>
 
-                            <td class="text-right">
-                                <?= (int)$p['jumlah_item'] ?>
-                            </td>
+                                    </td>
 
-                            <td class="text-right">
+                                    <td>
 
-                                Rp
-                                <?= number_format($p['jumlah_harga'],0,',','.') ?>
+                                        <span class="badge badge-danger">
+                                            Belum
+                                        </span>
 
-                            </td>
+                                    </td>
 
-                            <td>
+                                    <td>
 
-                                <?php if ($p['bukti_pembayaran']): ?>
+                                        <button
+                                            class="btn btn-success"
+                                            onclick="lunasi(<?= $p['id_faktur'] ?>,'<?= htmlspecialchars($p['no_faktur']) ?>')"
+                                        >
+                                            Lunas
+                                        </button>
 
-                                    <a
-                                        href="<?= BASE_URL ?>/frontend/superadmin/lihat_bukti.php?id=<?= $p['id_faktur'] ?>"
-                                        class="btn btn-secondary btn-sm"
-                                    >
-                                        📎 Lihat
-                                    </a>
+                                    </td>
 
-                                <?php else: ?>
+                                </tr>
 
-                                    <span style="color:#94a3b8;">-</span>
+                            <?php endforeach; ?>
 
-                                <?php endif; ?>
+                        <?php endif; ?>
 
-                            </td>
+                        </tbody>
 
-                            <td>
+                    </table>
 
-                                <button
-                                    class="btn btn-success btn-sm"
-                                    onclick="lunasi(<?= $p['id_faktur'] ?>,'<?= htmlspecialchars($p['no_faktur']) ?>')"
-                                >
-                                    ✅ Lunas
-                                </button>
+                </div>
 
-                            </td>
+            </div>
 
-                        </tr>
+            <!-- LUNAS -->
+            <div class="glass-card">
 
-                    <?php endforeach; ?>
+                <div class="section-title">
 
-                <?php endif; ?>
+                    <h3 style="color:#16a34a;">
+                        Lunas (<?= count($listLunas) ?>)
+                    </h3>
 
-            </tbody>
+                </div>
 
-        </table>
+                <div class="table-wrapper">
 
-    </div>
+                    <table>
 
-</div>
+                        <thead>
 
-<!-- LUNAS -->
-<div class="card" style="border-left:4px solid var(--success);">
+                            <tr>
+                                <th>No</th>
+                                <th>No Faktur</th>
+                                <th>PBF</th>
+                                <th>Tanggal</th>
+                                <th>Total</th>
+                                <th>Tgl Lunas</th>
+                                <th>Bukti</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
 
-    <div class="card-title" style="color:var(--success);">
+                        </thead>
 
-        <span class="material-icons-round">
-            check_circle
-        </span>
+                        <tbody>
 
-        Lunas
-        (<?= count($listLunas) ?>)
+                        <?php if (empty($listLunas)): ?>
 
-    </div>
+                            <tr>
+                                <td colspan="9" class="text-center" style="padding:30px;color:#94a3b8;">
+                                    Tidak ada data
+                                </td>
+                            </tr>
 
-    <div class="table-wrapper">
+                        <?php else: ?>
 
-        <table>
+                            <?php foreach ($listLunas as $i => $p): ?>
 
-            <thead>
+                                <tr>
 
-                <tr>
-                    <th>No</th>
-                    <th>No Faktur</th>
-                    <th>PBF</th>
-                    <th>Tanggal</th>
-                    <th>Total</th>
-                    <th>Tanggal Lunas</th>
-                    <th>Bukti</th>
-                    <th>Aksi</th>
-                </tr>
+                                    <td><?= $i + 1 ?></td>
 
-            </thead>
+                                    <td>
+                                        <strong>
+                                            <?= htmlspecialchars($p['no_faktur']) ?>
+                                        </strong>
+                                    </td>
 
-            <tbody>
+                                    <td>
+                                        <?= htmlspecialchars($p['nama_pbf']) ?>
+                                    </td>
 
-                <?php if (empty($listLunas)): ?>
+                                    <td>
+                                        <?= htmlspecialchars($p['tanggal_faktur']) ?>
+                                    </td>
 
-                    <tr>
+                                    <td class="text-right">
+                                        Rp <?= number_format($p['jumlah_harga'],0,',','.') ?>
+                                    </td>
 
-                        <td colspan="8" class="text-center" style="padding:35px;color:#94a3b8;">
-                            Tidak ada data lunas
-                        </td>
+                                    <td>
+                                        <?= htmlspecialchars($p['tanggal_lunas'] ?? '-') ?>
+                                    </td>
 
-                    </tr>
+                                    <td>
 
-                <?php else: ?>
+                                        <?php if ($p['bukti_pembayaran']): ?>
 
-                    <?php foreach ($listLunas as $i => $p): ?>
+                                            <a
+                                                href="<?= BASE_URL ?>/frontend/superadmin/lihat_bukti.php?id=<?= $p['id_faktur'] ?>"
+                                                class="btn btn-secondary"
+                                            >
+                                                Lihat
+                                            </a>
 
-                        <tr>
+                                        <?php else: ?>
 
-                            <td>
-                                <?= $i + 1 ?>
-                            </td>
+                                            -
 
-                            <td>
+                                        <?php endif; ?>
 
-                                <strong>
-                                    <?= htmlspecialchars($p['no_faktur']) ?>
-                                </strong>
+                                    </td>
 
-                            </td>
+                                    <td>
 
-                            <td>
-                                <?= htmlspecialchars($p['nama_pbf']) ?>
-                            </td>
+                                        <span class="badge badge-success">
+                                            Lunas
+                                        </span>
 
-                            <td>
-                                <?= htmlspecialchars($p['tanggal_faktur']) ?>
-                            </td>
+                                    </td>
 
-                            <td class="text-right">
+                                    <td>
 
-                                Rp
-                                <?= number_format($p['jumlah_harga'],0,',','.') ?>
+                                        <form
+                                            method="POST"
+                                            action="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=belum_lunas"
+                                            onsubmit="return confirm('Ubah menjadi belum lunas?')"
+                                        >
 
-                            </td>
+                                            <?= csrfField() ?>
 
-                            <td>
-                                <?= htmlspecialchars($p['tanggal_lunas'] ?? '-') ?>
-                            </td>
+                                            <input
+                                                type="hidden"
+                                                name="id_faktur"
+                                                value="<?= $p['id_faktur'] ?>"
+                                            >
 
-                            <td>
+                                            <button
+                                                type="submit"
+                                                class="btn btn-warning"
+                                            >
+                                                Undo
+                                            </button>
 
-                                <?php if ($p['bukti_pembayaran']): ?>
+                                        </form>
 
-                                    <a
-                                        href="<?= BASE_URL ?>/frontend/superadmin/lihat_bukti.php?id=<?= $p['id_faktur'] ?>"
-                                        class="btn btn-secondary btn-sm"
-                                    >
-                                        📎 Lihat
-                                    </a>
+                                    </td>
 
-                                <?php else: ?>
+                                </tr>
 
-                                    <span style="color:#94a3b8;">-</span>
+                            <?php endforeach; ?>
 
-                                <?php endif; ?>
+                        <?php endif; ?>
 
-                            </td>
+                        </tbody>
 
-                            <td>
+                    </table>
 
-                                <form
-                                    method="POST"
-                                    action="<?= BASE_URL ?>/backend/controllers/piutang_controller.php?action=belum_lunas"
-                                    onsubmit="return confirm('Ubah faktur ini menjadi belum lunas?')"
-                                >
+                </div>
 
-                                    <?= csrfField() ?>
+            </div>
 
-                                    <input
-                                        type="hidden"
-                                        name="id_faktur"
-                                        value="<?= $p['id_faktur'] ?>"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-warning btn-sm"
-                                    >
-                                        ↩ Belum
-                                    </button>
-
-                                </form>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                <?php endif; ?>
-
-            </tbody>
-
-        </table>
+        </div>
 
     </div>
 
@@ -982,7 +962,7 @@ tbody tr:hover{
 
         <div class="modal-header">
 
-            <h3>Tandai Faktur Lunas</h3>
+            <h3>Tandai Lunas</h3>
 
             <button
                 class="modal-close"
@@ -1007,7 +987,7 @@ tbody tr:hover{
                 id="lunasiId"
             >
 
-            <p style="margin-bottom:16px;">
+            <p style="margin-bottom:16px;font-size:13px;">
 
                 Faktur:
                 <strong id="lunasiFaktur"></strong>
@@ -1017,7 +997,7 @@ tbody tr:hover{
             <div class="form-group">
 
                 <label>
-                    Bukti Pembayaran (opsional)
+                    Bukti Pembayaran
                 </label>
 
                 <input
@@ -1027,27 +1007,19 @@ tbody tr:hover{
                     accept="image/*,.pdf"
                 >
 
-                <small style="color:#64748b;display:block;margin-top:8px;">
-                    Format JPG, PNG, WEBP, PDF maksimal 5MB.
-                </small>
-
             </div>
 
             <button
                 type="submit"
                 class="btn btn-success"
             >
-                ✅ Simpan Status Lunas
+                Simpan
             </button>
 
         </form>
 
     </div>
 
-</div>
-
-</div>
-</div>
 </div>
 
 <script>
