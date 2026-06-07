@@ -10,8 +10,9 @@ $fullName = getCurrentNamaLengkap() ?? 'User';
 ?>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="logo-text">APOTEK <span>ANANDA</span></div>
-        <div class="logo-sub">Group Jadimulya</div>
+        <a href="<?= BASE_URL ?>/frontend/<?= $roleFolder ?>/dashboard.php" class="sidebar-brand" aria-label="Apotek Ananda Group">
+            <img src="<?= BASE_URL ?>/frontend/assets/images/logo_ananda_group.jpg" alt="Apotek Ananda Group" class="sidebar-logo">
+        </a>
     </div>
     
     <nav class="sidebar-nav">
@@ -64,10 +65,13 @@ $fullName = getCurrentNamaLengkap() ?? 'User';
                 <div class="role"><?= $role === 'super_admin' ? 'Admin' : 'Staff' ?></div>
             </div>
         </div>
-        <a href="<?= BASE_URL ?>/logout.php" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; color: var(--danger);">
-            <span class="material-icons-round">logout</span>
-            Logout
-        </a>
+        <form method="POST" action="<?= BASE_URL ?>/backend/controllers/auth_controller.php?action=logout" style="width:100%;">
+            <?= csrfField() ?>
+            <button type="submit" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; color: var(--danger);">
+                <span class="material-icons-round">logout</span>
+                Logout
+            </button>
+        </form>
     </div>
 </aside>
 

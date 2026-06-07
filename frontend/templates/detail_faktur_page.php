@@ -4,14 +4,22 @@ $backUrl = BASE_URL . '/frontend/' . $roleFolder . '/manajemen_stok.php';
 $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (int)$faktur['id_faktur'];
 ?>
 
+
+<style>
+.detail-obat-table { min-width: 940px; table-layout: fixed; }
+.detail-obat-table th,
+.detail-obat-table td { vertical-align: middle; }
+.detail-obat-table td:nth-child(2) { word-break: break-word; }
+</style>
+
 <div class="page-header">
     <h1>Detail Faktur</h1>
     <p>Informasi header faktur, daftar obat, dan batch/expired per qty.</p>
 </div>
 
 <div style="display:flex;gap:10px;margin-bottom:16px;">
-    <a href="<?= $backUrl ?>" class="btn btn-secondary btn-sm">← Kembali</a>
-    <a href="<?= $editUrl ?>" class="btn btn-warning btn-sm">✏️ Edit Faktur</a>
+    <a href="<?= $backUrl ?>" class="btn btn-secondary btn-sm"><span class="material-icons-round">arrow_back</span>Kembali</a>
+    <a href="<?= $editUrl ?>" class="btn btn-warning btn-sm"><span class="material-icons-round">edit</span>Edit Faktur</a>
 </div>
 
 <div class="card">
@@ -31,16 +39,28 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
 <div class="card">
     <h3 style="margin-bottom:16px;">Obat dalam Faktur</h3>
     <div class="table-wrapper">
-        <table>
+        <table class="detail-obat-table">
+            <colgroup>
+                <col style="width:6%">
+                <col style="width:18%">
+                <col style="width:14%">
+                <col style="width:10%">
+                <col style="width:12%">
+                <col style="width:10%">
+                <col style="width:6%">
+                <col style="width:12%">
+                <col style="width:12%">
+            </colgroup>
             <thead>
                 <tr>
                     <th>No</th>
                     <th>Nama Obat</th>
+                    <th>Merk Dagang</th>
                     <th>Satuan</th>
-                    <th>Harga</th>
-                    <th>Diskon (%)</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
+                    <th class="text-right">Harga</th>
+                    <th class="text-right">Diskon (%)</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Subtotal</th>
                     <th>Batch & Expired</th>
                 </tr>
             </thead>
@@ -49,6 +69,7 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
                     <tr>
                         <td><?= $i + 1 ?></td>
                         <td><strong><?= htmlspecialchars($item['nama_obat']) ?></strong></td>
+                        <td><?= htmlspecialchars($item['merk_dagang'] ?? '-') ?: '-' ?></td>
                         <td><?= htmlspecialchars($item['satuan']) ?></td>
                         <td class="text-right">Rp <?= number_format($item['harga_beli'], 0, ',', '.') ?></td>
                         <td class="text-right"><?= number_format($item['discount'], 2, ',', '.') ?>%</td>
@@ -58,8 +79,20 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
                             <?php if (empty($item['batches'])): ?>
                                 <span style="color:#94a3b8">-</span>
                             <?php else: ?>
-                                <button class="btn btn-outline btn-sm" onclick="showBatchDetail('<?= htmlspecialchars($item['nama_obat'], ENT_QUOTES) ?>', <?= htmlspecialchars(json_encode($item['batches']), ENT_QUOTES) ?>)">
-                                    📋 Detail (<?= count($item['batches']) ?>)
+                                <?php
+                                    $namaObatJson = htmlspecialchars(
+                                        json_encode($item['nama_obat'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    );
+                                    $batchJson = htmlspecialchars(
+                                        json_encode($item['batches'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    );
+                                ?>
+                                <button class="btn btn-outline btn-sm" onclick='showBatchDetail(<?= $namaObatJson ?>, <?= $batchJson ?>)'>
+                                    <span class="material-icons-round">list_alt</span>Detail (<?= count($item['batches']) ?>)
                                 </button>
                             <?php endif; ?>
                         </td>
@@ -93,13 +126,34 @@ $editUrl = BASE_URL . '/frontend/' . $roleFolder . '/tambah_faktur.php?id=' . (i
 </div>
 
 <script>
+function appendCell(row, value, useCode = false) {
+    const td = document.createElement('td');
+
+    if (useCode) {
+        const code = document.createElement('code');
+        code.textContent = value || '-';
+        td.appendChild(code);
+    } else {
+        td.textContent = value || '-';
+    }
+
+    row.appendChild(td);
+}
+
 function showBatchDetail(namaObat, batches) {
-    document.getElementById('batchModalTitle').textContent = 'Batch & Expired — ' + namaObat;
+    document.getElementById('batchModalTitle').textContent = 'Batch & Expired — ' + (namaObat || '-');
     const tbody = document.getElementById('batchModalBody');
-    tbody.innerHTML = '';
+    tbody.replaceChildren();
+
+    if (!Array.isArray(batches)) {
+        batches = [];
+    }
+
     batches.forEach(function(b, idx) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + (idx + 1) + '</td><td><code>' + (b.no_batch || '-') + '</code></td><td>' + (b.expired_date || '-') + '</td>';
+        appendCell(tr, String(idx + 1));
+        appendCell(tr, b && b.no_batch ? String(b.no_batch) : '-', true);
+        appendCell(tr, b && b.expired_date ? String(b.expired_date) : '-');
         tbody.appendChild(tr);
     });
     openModal('modalBatchDetail');

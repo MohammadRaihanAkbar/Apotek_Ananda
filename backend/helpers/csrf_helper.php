@@ -89,14 +89,31 @@ function validateCSRFToken(?string $token = null): bool {
 /**
  * Validasi CSRF dan redirect jika gagal
  */
+function getSafeCSRFRedirectUrl(): string {
+    $fallback = defined('BASE_URL') ? (BASE_URL ?: '/') : '/';
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+    if ($referer === '') {
+        return $fallback;
+    }
+
+    $refererHost = parse_url($referer, PHP_URL_HOST);
+    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
+
+    if ($refererHost !== null && $currentHost !== '' && hash_equals($currentHost, $refererHost)) {
+        return $referer;
+    }
+
+    return $fallback;
+}
+
 function requireValidCSRF(): void {
     if (!validateCSRFToken()) {
         if (function_exists('setFlashMessage')) {
             setFlashMessage('error', 'Sesi tidak valid. Silakan coba lagi.');
         }
         
-        $referer = $_SERVER['HTTP_REFERER'] ?? (defined('BASE_URL') ? BASE_URL : '/');
-        header("Location: $referer");
+        header('Location: ' . getSafeCSRFRedirectUrl());
         exit;
     }
 }

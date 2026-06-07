@@ -36,7 +36,9 @@
 
         /* Sidebar Styling — Compact */
         .sidebar { width: var(--sidebar-width); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
-        .sidebar-header { padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-header { padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .sidebar-brand { display: block; text-decoration: none; width: 100%; text-align: center; }
+        .sidebar-logo { display: block; width: 178px; max-width: 100%; height: auto; margin: 0 auto; object-fit: contain; }
         .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 19px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
         .logo-text span { color: #e11d48; }
         .logo-sub { font-size: 11px; color: #64748b; font-weight: 500; letter-spacing: 0.5px; }
@@ -98,9 +100,10 @@
 
         /* Table Design — Compact */
         .table-wrapper { width: 100%; overflow-x: auto; border-radius: 10px; }
+        .table-wrapper table { min-width: 900px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
         th { background: #f8fafc; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); }
-        td { padding: 10px 12px; font-size: 13px; color: #475569; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        td { padding: 10px 12px; font-size: 13px; color: #475569; border-bottom: 1px solid #f1f5f9; vertical-align: middle; line-height: 1.35; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background: #fafafa; }
         
@@ -112,6 +115,8 @@
 
         /* Buttons — Compact */
         .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: 'Inter', sans-serif; }
+        .btn .material-icons-round { font-size: 16px; line-height: 1; }
+        .btn-sm .material-icons-round { font-size: 14px; }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
         .btn-outline { border: 1px solid var(--border); background: #fff; color: #475569; }
@@ -126,7 +131,7 @@
         /* Modals — Compact */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-overlay.active { display: flex; }
-        .modal { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 600px; box-shadow: var(--shadow-lg); animation: slideUp 0.3s ease-out; }
+        .modal { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 600px; max-height: calc(100vh - 48px); overflow-y: auto; box-shadow: var(--shadow-lg); animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .alert { padding: 12px; border-radius: 10px; margin-bottom: 18px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }

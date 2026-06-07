@@ -42,13 +42,21 @@ function getExpiredFilters(): array {
 
 function handleExportExcel(): void {
     $data = (new ObatExpired())->getExpiredReport(getExpiredFilters());
-    $headers = ['No', 'Nama Obat', 'No Batch', 'Exp Date', 'Sisa Hari', 'Qty', 'Satuan', 'Harga Beli', 'PBF', 'No Faktur'];
+
+    (new LogAktivitas())->catat(
+        getCurrentUserId(),
+        'Export Laporan Expired Excel',
+        'Mengekspor laporan expired Excel sebanyak ' . count($data) . ' data'
+    );
+
+    $headers = ['No', 'Nama Obat', 'Merk Dagang', 'No Batch', 'Exp Date', 'Sisa Hari', 'Qty', 'Satuan', 'Harga Beli', 'PBF', 'No Faktur'];
     $rows = [];
     $no = 1;
     foreach ($data as $row) {
         $rows[] = [
             $no++,
             $row['nama_obat'],
+            $row['merk_dagang'] ?: '-',
             $row['batch'],
             $row['expired_date'],
             (int)$row['sisa_hari'],
@@ -64,13 +72,21 @@ function handleExportExcel(): void {
 
 function handleExportPDF(): void {
     $data = (new ObatExpired())->getExpiredReport(getExpiredFilters());
-    $headers = ['No', 'Nama Obat', 'No Batch', 'Exp Date', 'Sisa Hari', 'Qty', 'Satuan', 'PBF', 'No Faktur'];
+
+    (new LogAktivitas())->catat(
+        getCurrentUserId(),
+        'Export Laporan Expired PDF',
+        'Mengekspor laporan expired PDF sebanyak ' . count($data) . ' data'
+    );
+
+    $headers = ['No', 'Nama Obat', 'Merk Dagang', 'No Batch', 'Exp Date', 'Sisa Hari', 'Qty', 'Satuan', 'PBF', 'No Faktur'];
     $rows = [];
     $no = 1;
     foreach ($data as $row) {
         $rows[] = [
             $no++,
             $row['nama_obat'],
+            $row['merk_dagang'] ?: '-',
             $row['batch'],
             $row['expired_date'],
             (int)$row['sisa_hari'],

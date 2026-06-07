@@ -56,7 +56,11 @@ $cards = [
 ];
 ?>
 
+<!-- BACKGROUND -->
 <div class="bg-grid"></div>
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+<div class="bg-glow glow-3"></div>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -72,167 +76,315 @@ body{
     min-height:100vh;
     overflow-x:hidden;
     color:#0f172a;
+    position:relative;
+
     background:
         linear-gradient(
             135deg,
             #edf4ff 0%,
-            #f7fbff 40%,
+            #f7fbff 35%,
             #ffffff 100%
         );
 }
 
-/* ======================
-   BACKGROUND
-====================== */
+/* BACKGROUND */
 
 body::before{
     content:'';
     position:fixed;
     inset:-20%;
-    z-index:-2;
 
     background:
-        radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 25%),
-        radial-gradient(circle at 80% 30%, rgba(96,165,250,.15), transparent 25%),
-        radial-gradient(circle at 50% 80%, rgba(125,211,252,.12), transparent 30%);
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,0.22), transparent 25%),
+        radial-gradient(circle at 80% 30%, rgba(96,165,250,0.20), transparent 25%),
+        radial-gradient(circle at 50% 80%, rgba(125,211,252,0.18), transparent 30%);
 
     filter:blur(70px);
+    animation:bgMove 20s linear infinite;
+    z-index:-5;
+}
+
+body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    z-index:-4;
+}
+
+@keyframes bgMove{
+    0%{
+        transform:translate(0,0) rotate(0deg);
+    }
+
+    50%{
+        transform:translate(50px,-40px) rotate(180deg);
+    }
+
+    100%{
+        transform:translate(0,0) rotate(360deg);
+    }
 }
 
 .bg-grid{
     position:fixed;
     inset:0;
-    z-index:-1;
 
     background-image:
-        linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
 
-    background-size:38px 38px;
-    mask-image:radial-gradient(circle at center, black 30%, transparent 80%);
+    background-size:40px 40px;
+
+    mask-image:
+        radial-gradient(circle at center, black 35%, transparent 85%);
+
+    z-index:-3;
 }
 
-/* ======================
-   CONTAINER
-====================== */
+.bg-glow{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(10px);
+
+    background:
+        radial-gradient(circle at 30% 30%,
+        rgba(255,255,255,0.95),
+        rgba(255,255,255,0.08));
+
+    animation:floating 15s ease-in-out infinite;
+
+    z-index:-2;
+}
+
+.glow-1{
+    width:260px;
+    height:260px;
+    top:5%;
+    left:-70px;
+}
+
+.glow-2{
+    width:340px;
+    height:340px;
+    bottom:-120px;
+    right:-80px;
+    animation-duration:18s;
+}
+
+.glow-3{
+    width:160px;
+    height:160px;
+    top:45%;
+    right:18%;
+    animation-duration:12s;
+}
+
+@keyframes floating{
+    0%,100%{
+        transform:translateY(0) translateX(0);
+    }
+
+    50%{
+        transform:translateY(-25px) translateX(15px);
+    }
+}
+
+/* CONTAINER */
 
 .dashboard-container{
-    width:100%;
-    padding:24px;
+    padding:28px;
     display:flex;
     flex-direction:column;
     gap:24px;
+    position:relative;
+    z-index:10;
 }
 
-/* ======================
-   GLASS
-====================== */
+/* GLASS */
 
 .glass{
-    background:rgba(255,255,255,.55);
-    border:1px solid rgba(255,255,255,.7);
-
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-
-    box-shadow:
-        0 10px 35px rgba(15,23,42,.08),
-        inset 0 1px 0 rgba(255,255,255,.9);
-
-    border-radius:26px;
-}
-
-/* ======================
-   HEADER
-====================== */
-
-.page-header{
-    padding:34px;
     position:relative;
     overflow:hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.55),
+            rgba(255,255,255,0.28)
+        );
+
+    border:1px solid rgba(255,255,255,0.75);
+
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+
+    box-shadow:
+        0 10px 35px rgba(15,23,42,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        inset 0 -1px 0 rgba(255,255,255,0.4);
+
+    transition:0.35s ease;
 }
 
+.glass::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:-120%;
+    width:70%;
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.35),
+            transparent
+        );
+
+    transform:skewX(-25deg);
+
+    animation:shine 7s linear infinite;
+}
+
+@keyframes shine{
+    0%{left:-120%;}
+    100%{left:150%;}
+}
+
+/* HEADER */
+
+.page-header{
+    position:relative;
+    overflow:hidden;
+
+    padding:42px 48px;
+    border-radius:36px;
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,255,255,0.65),
+            rgba(255,255,255,0.35)
+        );
+
+    border:1px solid rgba(255,255,255,0.9);
+
+    backdrop-filter:blur(30px);
+    -webkit-backdrop-filter:blur(30px);
+
+    box-shadow:
+        0 30px 80px rgba(15,23,42,0.12),
+        inset 0 1px 0 rgba(255,255,255,1);
+}
+
+/* glow premium di pojok */
 .page-header::before{
     content:'';
     position:absolute;
-    top:-80px;
     right:-80px;
-
-    width:220px;
-    height:220px;
+    top:-80px;
+    width:260px;
+    height:260px;
     border-radius:50%;
 
-    background:radial-gradient(circle, rgba(59,130,246,.25), transparent 70%);
+    background:radial-gradient(circle, rgba(59,130,246,.35), transparent 70%);
+    filter:blur(55px);
+}
+
+/* garis tipis elegan di bawah */
+.page-header::after{
+    content:'';
+    position:absolute;
+    left:48px;
+    right:48px;
+    bottom:0;
+    height:1px;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(15,23,42,.12),
+        transparent
+    );
 }
 
 .page-header h1{
     font-size:32px;
     font-weight:700;
-    margin-bottom:10px;
-    position:relative;
+    margin-bottom:8px;
 }
 
 .page-header p{
     font-size:14px;
     color:#64748b;
-    line-height:1.8;
-    max-width:700px;
-    position:relative;
+    line-height:1.7;
 }
 
-/* ======================
-   ALERT
-====================== */
+/* ALERT */
 
 .alert{
     padding:16px 20px;
-    font-size:14px;
-    color:#1d4ed8;
+    border-radius:18px;
+    color:#1e3a8a;
+    font-size:13px;
 }
 
-/* ======================
-   CARD GRID
-====================== */
+/* STATS */
 
 .stats-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns:repeat(5,1fr);
     gap:20px;
 }
 
 .stat-card{
     padding:22px;
-    transition:.3s ease;
+    border-radius:28px;
+    position:relative;
+    transition:0.35s ease;
 }
 
 .stat-card:hover{
-    transform:translateY(-5px);
+    transform:translateY(-10px) scale(1.025);
     box-shadow:
-        0 18px 40px rgba(15,23,42,.12);
+        0 25px 60px rgba(15,23,42,0.18),
+        0 8px 20px rgba(15,23,42,0.12);
 }
 
-/* ======================
-   ICON
-====================== */
+/* WARNA CARD — NETRAL GLASS */
+
+.stat-card.stok,
+.stat-card.faktur,
+.stat-card.piutang,
+.stat-card.expired,
+.stat-card.log{
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.7);
+    backdrop-filter:blur(24px);
+}
+
+/* ICON */
 
 .icon-box{
-    width:58px;
-    height:58px;
-    border-radius:18px;
+     box-shadow:
+        0 10px 25px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,.4);
+    width:62px;
+    height:62px;
+    border-radius:20px;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
     margin-bottom:18px;
-
-    box-shadow:
-        0 10px 22px rgba(0,0,0,.12);
-}
-
-.icon-box .material-icons-round{
-    color:#fff;
-    font-size:28px;
 }
 
 .stok .icon-box{
@@ -255,57 +407,56 @@ body::before{
     background:linear-gradient(135deg,#fbbf24,#d97706);
 }
 
-/* ======================
-   TEXT
-====================== */
+.icon-box .material-icons-round{
+    color:#fff;
+    font-size:28px;
+}
+
+/* TEXT */
 
 .label{
     font-size:12px;
+    opacity:.75;
     font-weight:700;
-    letter-spacing:.8px;
-    color:#64748b;
+    letter-spacing:1px;
+    color:#475569;
 }
 
 .value{
-    margin:10px 0;
-    font-size:30px;
+    font-size:34px;
+    letter-spacing:1px;
     font-weight:700;
-    line-height:1.2;
-
-    word-break:break-word;
+    margin:10px 0;
+    color:#0f172a;
 }
 
 .sub-label{
     font-size:12px;
-    color:#94a3b8;
+    color:#64748b;
     margin-bottom:18px;
 }
 
-/* ======================
-   BUTTON
-====================== */
+/* BUTTON */
 
 .btn{
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
     width:100%;
-    padding:12px 14px;
 
     display:flex;
-    justify-content:center;
     align-items:center;
+    justify-content:center;
+
+    padding:11px 14px;
 
     border-radius:14px;
 
     text-decoration:none;
-    color:#fff;
-
     font-size:13px;
     font-weight:600;
 
-    transition:.25s ease;
-}
+    color:#fff;
 
-.btn:hover{
-    transform:translateY(-2px);
+    transition:.3s ease;
 }
 
 .stok .btn{
@@ -328,19 +479,23 @@ body::before{
     background:linear-gradient(135deg,#fbbf24,#d97706);
 }
 
-/* ======================
-   BOTTOM GRID
-====================== */
+.btn:hover{
+     transform:translateY(-3px);
+    box-shadow:0 14px 26px rgba(0,0,0,.25);
+}
+
+/* BOTTOM */
 
 .bottom-grid{
     display:grid;
     grid-template-columns:2fr 1fr;
-    gap:20px;
+    gap:22px;
 }
 
 .summary-box,
 .calendar-box{
     padding:24px;
+    border-radius:28px;
 }
 
 .section-title{
@@ -349,10 +504,6 @@ body::before{
     margin-bottom:20px;
 }
 
-/* ======================
-   SUMMARY
-====================== */
-
 .summary-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -360,11 +511,13 @@ body::before{
 }
 
 .summary-card{
-    padding:20px;
-    border-radius:20px;
+      padding:20px;
+    border-radius:22px;
 
-    background:rgba(255,255,255,.45);
-    border:1px solid rgba(255,255,255,.7);
+    background:rgba(255,255,255,0.45);
+    border:1px solid rgba(255,255,255,0.7);
+
+    box-shadow:0 12px 30px rgba(15,23,42,.08);
 }
 
 .summary-label{
@@ -376,57 +529,60 @@ body::before{
 .summary-value{
     font-size:28px;
     font-weight:700;
-    margin-bottom:8px;
+    margin-bottom:6px;
 }
 
 .summary-desc{
-    font-size:12px;
+    font-size:11px;
     color:#94a3b8;
-    line-height:1.6;
 }
-
-/* ======================
-   CALENDAR
-====================== */
 
 .calendar-box{
     text-align:center;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
 }
 
 .calendar-date{
-    font-size:72px;
+    font-size:84px;
     font-weight:700;
     line-height:1;
 
-    background:linear-gradient(135deg,#2563eb,#60a5fa);
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #60a5fa
+        );
 
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
+
+    margin-top:10px;
 }
 
 .calendar-day{
-    margin-top:12px;
-    font-size:18px;
+    margin-top:14px;
+    font-size:17px;
     font-weight:600;
 }
 
 .calendar-month{
     margin-top:4px;
-    color:#64748b;
     font-size:13px;
+    color:#64748b;
 }
 
-/* ======================
-   RESPONSIVE TABLET
-====================== */
+/* RESPONSIVE */
+
+@media(max-width:1400px){
+    .stats-grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
 
 @media(max-width:992px){
 
-    .dashboard-container{
-        padding:18px;
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
     }
 
     .bottom-grid{
@@ -436,93 +592,20 @@ body::before{
     .summary-grid{
         grid-template-columns:1fr;
     }
-
-    .page-header{
-        padding:28px;
-    }
-
-    .page-header h1{
-        font-size:28px;
-    }
 }
-
-/* ======================
-   RESPONSIVE MOBILE
-====================== */
 
 @media(max-width:600px){
 
-    .dashboard-container{
-        padding:14px;
-        gap:18px;
+    .stats-grid{
+        grid-template-columns:1fr;
     }
 
-    .page-header{
-        padding:22px 18px;
-        border-radius:22px;
+    .dashboard-container{
+        padding:16px;
     }
 
     .page-header h1{
-        font-size:22px;
-        line-height:1.4;
-    }
-
-    .page-header p{
-        font-size:13px;
-        line-height:1.7;
-    }
-
-    .glass{
-        border-radius:22px;
-    }
-
-    .stat-card{
-        padding:18px;
-    }
-
-    .icon-box{
-        width:52px;
-        height:52px;
-        border-radius:16px;
-    }
-
-    .icon-box .material-icons-round{
         font-size:24px;
-    }
-
-    .value{
-        font-size:24px;
-    }
-
-    .btn{
-        font-size:12px;
-        padding:10px 12px;
-    }
-
-    .summary-box,
-    .calendar-box{
-        padding:18px;
-    }
-
-    .summary-value{
-        font-size:24px;
-    }
-
-    .calendar-date{
-        font-size:56px;
-    }
-
-    .calendar-day{
-        font-size:16px;
-    }
-
-    .section-title{
-        font-size:16px;
-    }
-
-    .alert{
-        font-size:13px;
-        padding:14px 16px;
     }
 }
 </style>
@@ -538,8 +621,7 @@ body::before{
         </h1>
 
         <p>
-            Pantau dan kelola seluruh data stok obat, transaksi, piutang,
-            serta aktivitas pengguna Apotek Ananda dari satu dashboard.
+            Pantau dan kelola seluruh data, stok obat, transaksi, serta aktivitas pengguna Apotek Ananda dari satu tempat.
         </p>
 
     </div>

@@ -15,6 +15,11 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
+// Timezone aplikasi dan database.
+define('APP_TIMEZONE', 'Asia/Jakarta');
+define('DB_TIMEZONE', '+07:00');
+date_default_timezone_set(APP_TIMEZONE);
+
 // =============================================
 // KONFIGURASI APLIKASI
 // =============================================
@@ -58,6 +63,7 @@ function getDBConnection(): PDO {
         
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            $pdo->exec("SET time_zone = '" . DB_TIMEZONE . "'");
         } catch (PDOException $e) {
             // Jangan tampilkan detail error di production
             error_log("Database connection failed: " . $e->getMessage());

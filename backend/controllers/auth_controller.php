@@ -111,6 +111,14 @@ function handleLogin(): void {
  * Proses logout
  */
 function handleLogout(): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        setFlashMessage('error', 'Permintaan logout tidak valid.');
+        redirect(BASE_URL . '/frontend/auth/login.php');
+        return;
+    }
+
+    requireValidCSRF();
+
     // Catat log sebelum destroy session
     if (isLoggedIn()) {
         $logModel = new LogAktivitas();

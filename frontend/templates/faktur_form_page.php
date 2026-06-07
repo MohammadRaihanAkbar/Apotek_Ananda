@@ -8,6 +8,7 @@ if ($isEdit) {
     foreach (($faktur['details'] ?? []) as $d) {
         $initialItems[] = [
             'nama_obat' => $d['nama_obat'] ?? '',
+            'merk_dagang' => $d['merk_dagang'] ?? '',
             'satuan' => $d['satuan'] ?? '',
             'harga_beli' => $d['harga_beli'] ?? 0,
             'discount' => $d['discount'] ?? 0,
@@ -28,7 +29,7 @@ if ($isEdit) {
 <?php endif; ?>
 
 <div style="margin-bottom:16px;">
-    <a href="<?= $backUrl ?>" class="btn btn-secondary btn-sm">← Kembali ke Manajemen Stok</a>
+    <a href="<?= $backUrl ?>" class="btn btn-secondary btn-sm"><span class="material-icons-round">arrow_back</span>Kembali ke Manajemen Stok</a>
 </div>
 
 <form id="fakturForm" method="POST" action="<?= $actionUrl ?>">
@@ -61,12 +62,9 @@ if ($isEdit) {
                 <input type="date" name="tanggal_masuk" class="form-control" required value="<?= htmlspecialchars($faktur['tanggal_masuk'] ?? date('Y-m-d')) ?>">
             </div>
             <div class="form-group">
-                <label>Status Pembayaran *</label>
-                <?php $status = $faktur['status_bayar'] ?? $faktur['status_pembayaran'] ?? 'belum_lunas'; ?>
-                <select name="status_bayar" class="form-control" required>
-                    <option value="belum_lunas" <?= $status === 'belum_lunas' ? 'selected' : '' ?>>Belum Lunas</option>
-                    <option value="lunas" <?= $status === 'lunas' ? 'selected' : '' ?>>Lunas</option>
-                </select>
+                <label>Tanggal Jatuh Tempo *</label>
+                <input type="date" name="tanggal_jatuh_tempo" class="form-control" required value="<?= htmlspecialchars($faktur['tanggal_jatuh_tempo'] ?? date('Y-m-d')) ?>">
+                <small style="color:#64748b;">Tanggal ini hanya ditampilkan di menu Piutang.</small>
             </div>
         </div>
     </div>
@@ -77,15 +75,16 @@ if ($isEdit) {
                 <h3>Daftar Obat</h3>
                 <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Klik <strong>Isi Batch</strong> setelah mengisi qty. Jumlah form batch otomatis mengikuti qty.</p>
             </div>
-            <button type="button" class="btn btn-success btn-sm" onclick="addItemRow()">+ Tambah Obat</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="addItemRow()"><span class="material-icons-round">add</span>Tambah Obat</button>
         </div>
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Nama Obat</th>
-                        <th>Satuan</th>
-                        <th>Harga Beli</th>
+                        <th>Nama Obat *</th>
+                        <th>Merk Dagang</th>
+                        <th>Satuan *</th>
+                        <th>Harga Beli *</th>
                         <th>Diskon (%)</th>
                         <th>Qty</th>
                         <th>Batch & Exp</th>
@@ -101,7 +100,7 @@ if ($isEdit) {
 
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:30px;">
         <a href="<?= $backUrl ?>" class="btn btn-secondary">Batal</a>
-        <button type="submit" class="btn btn-primary" <?= empty($pbfList) ? 'disabled' : '' ?>>💾 <?= $isEdit ? 'Update Faktur' : 'Simpan Faktur' ?></button>
+        <button type="submit" class="btn btn-primary" <?= empty($pbfList) ? 'disabled' : '' ?>><span class="material-icons-round">save</span><?= $isEdit ? 'Update Faktur' : 'Simpan Faktur' ?></button>
     </div>
 </form>
 
@@ -152,7 +151,8 @@ function setRowBatches(tr, batches){
 function itemRow(item = {}){
     const batches = JSON.stringify(normalizeBatches(item.batches || [], parseInt(item.qty)||0)).replace(/'/g, '&#39;');
     return `<tr>
-        <td><input list="obatOptions" type="text" name="nama_obat[]" class="form-control" required value="${escapeHtml(item.nama_obat || '')}" placeholder="Nama obat"></td>
+        <td><input list="obatOptions" type="text" name="nama_obat[]" class="form-control" required value="${escapeHtml(item.nama_obat || '')}" placeholder="Nama generik/obat"></td>
+        <td><input type="text" name="merk_dagang[]" class="form-control" value="${escapeHtml(item.merk_dagang || '')}" placeholder="Opsional"></td>
         <td><select name="satuan[]" class="form-control" required>${satuanSelect(item.satuan || '')}</select></td>
         <td><input type="number" name="harga_beli[]" class="form-control" min="0" step="1" required value="${escapeHtml(item.harga_beli || '')}" oninput="calcRow(this)"></td>
         <td><input type="number" name="discount[]" class="form-control" min="0" max="100" step="0.01" value="${escapeHtml(item.discount ?? 0)}" oninput="calcRow(this)" placeholder="0-100"></td>

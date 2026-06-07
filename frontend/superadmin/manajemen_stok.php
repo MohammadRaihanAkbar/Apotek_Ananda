@@ -14,7 +14,21 @@ $pbfModel  = new PBF();
 $filterPbf = isset($_GET['pbf']) ? sanitizeInt($_GET['pbf']) : null;
 $search    = isset($_GET['search']) ? sanitize($_GET['search']) : null;
 
-$stokList  = $stokModel->getAll($filterPbf, $search);
+$tanggalFakturDari = isset($_GET['tanggal_faktur_dari']) ? sanitize($_GET['tanggal_faktur_dari']) : null;
+$tanggalFakturSampai = isset($_GET['tanggal_faktur_sampai']) ? sanitize($_GET['tanggal_faktur_sampai']) : null;
+$tanggalMasukDari = isset($_GET['tanggal_masuk_dari']) ? sanitize($_GET['tanggal_masuk_dari']) : null;
+$tanggalMasukSampai = isset($_GET['tanggal_masuk_sampai']) ? sanitize($_GET['tanggal_masuk_sampai']) : null;
+$hargaMin = (isset($_GET['harga_min']) && $_GET['harga_min'] !== '') ? sanitizeDecimal($_GET['harga_min']) : null;
+$hargaMax = (isset($_GET['harga_max']) && $_GET['harga_max'] !== '') ? sanitizeDecimal($_GET['harga_max']) : null;
+
+if ($tanggalFakturDari && !isValidDate($tanggalFakturDari)) $tanggalFakturDari = null;
+if ($tanggalFakturSampai && !isValidDate($tanggalFakturSampai)) $tanggalFakturSampai = null;
+if ($tanggalMasukDari && !isValidDate($tanggalMasukDari)) $tanggalMasukDari = null;
+if ($tanggalMasukSampai && !isValidDate($tanggalMasukSampai)) $tanggalMasukSampai = null;
+if ($hargaMin !== null && $hargaMin < 0) $hargaMin = null;
+if ($hargaMax !== null && $hargaMax < 0) $hargaMax = null;
+
+$stokList  = $stokModel->getAll($filterPbf, $search, $tanggalFakturDari, $tanggalFakturSampai, $tanggalMasukDari, $tanggalMasukSampai, $hargaMin, $hargaMax);
 $pbfList   = $pbfModel->getAll();
 $namaObatList = $stokModel->getNamaObatList();
 
@@ -35,38 +49,33 @@ require_once __DIR__ . '/../templates/sidebar.php';
 <div class="bg-grid"></div>
 <div class="bg-bubble one"></div>
 <div class="bg-bubble two"></div>
+<div class="bg-bubble three"></div>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
     font-family:'Poppins',sans-serif;
-}
-
-html,
-body{
-    overflow-x:hidden;
 }
 
 body{
     min-height:100vh;
+    overflow-x:hidden;
     color:#0f172a;
-    position:relative;
 
     background:
         linear-gradient(
             135deg,
-            #f5f9ff 0%,
-            #edf4ff 45%,
+            #f8fbff 0%,
+            #eef5ff 35%,
             #ffffff 100%
         );
+
+    position:relative;
 }
 
 /* =========================
-   BACKGROUND
+   BACKGROUND HIDUP
 ========================= */
 
 body::before{
@@ -75,15 +84,25 @@ body::before{
     inset:-20%;
 
     background:
-        radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 28%),
-        radial-gradient(circle at 80% 30%, rgba(125,211,252,.18), transparent 28%),
-        radial-gradient(circle at 50% 80%, rgba(96,165,250,.14), transparent 30%);
+        radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 55%),
+        radial-gradient(circle, rgba(125,211,252,0.18) 0%, transparent 60%),
+        radial-gradient(circle, rgba(96,165,250,0.16) 0%, transparent 55%);
 
-    filter:blur(70px);
+    background-size:
+        700px 700px,
+        600px 600px,
+        800px 800px;
 
-    animation:bgMove 18s linear infinite;
+    background-position:
+        0% 0%,
+        100% 100%,
+        50% 50%;
 
-    z-index:-5;
+    animation:moveGlow 18s linear infinite;
+
+    filter:blur(40px);
+
+    z-index:-4;
 }
 
 body::after{
@@ -91,25 +110,12 @@ body::after{
     position:fixed;
     inset:0;
 
-    background:rgba(255,255,255,.05);
     backdrop-filter:blur(10px);
 
-    z-index:-4;
-}
+    background:
+        rgba(255,255,255,0.05);
 
-@keyframes bgMove{
-
-    0%{
-        transform:translate(0,0) rotate(0deg);
-    }
-
-    50%{
-        transform:translate(40px,-30px) rotate(180deg);
-    }
-
-    100%{
-        transform:translate(0,0) rotate(360deg);
-    }
+    z-index:-3;
 }
 
 .bg-grid{
@@ -117,58 +123,97 @@ body::after{
     inset:0;
 
     background-image:
-        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
 
     background-size:40px 40px;
 
     mask-image:
         radial-gradient(circle at center, black 35%, transparent 85%);
 
-    z-index:-3;
+    z-index:-2;
 }
 
 .bg-bubble{
     position:fixed;
     border-radius:50%;
+    pointer-events:none;
 
     background:
         radial-gradient(
             circle at 30% 30%,
-            rgba(255,255,255,.95),
-            rgba(255,255,255,.08)
+            rgba(255,255,255,0.95),
+            rgba(255,255,255,0.08)
         );
 
-    filter:blur(10px);
+    box-shadow:
+        inset 0 0 20px rgba(255,255,255,0.9),
+        0 0 40px rgba(59,130,246,0.15);
 
-    animation:floating 14s ease-in-out infinite;
+    animation:
+        floating 14s ease-in-out infinite;
 
-    z-index:-2;
+    z-index:-1;
 }
 
 .bg-bubble.one{
-    width:240px;
-    height:240px;
-    top:5%;
-    left:-80px;
+    width:220px;
+    height:220px;
+    top:8%;
+    left:-60px;
 }
 
 .bg-bubble.two{
-    width:320px;
-    height:320px;
-    right:-120px;
-    bottom:-120px;
-    animation-duration:18s;
+    width:300px;
+    height:300px;
+    bottom:-100px;
+    right:-80px;
+    animation-duration:20s;
+}
+
+.bg-bubble.three{
+    width:140px;
+    height:140px;
+    top:45%;
+    right:18%;
+    animation-duration:12s;
+}
+
+@keyframes moveGlow{
+
+    0%{
+        transform:translate(0,0) rotate(0deg);
+    }
+
+    25%{
+        transform:translate(60px,-40px) rotate(90deg);
+    }
+
+    50%{
+        transform:translate(-30px,50px) rotate(180deg);
+    }
+
+    75%{
+        transform:translate(40px,30px) rotate(270deg);
+    }
+
+    100%{
+        transform:translate(0,0) rotate(360deg);
+    }
 }
 
 @keyframes floating{
 
     0%,100%{
-        transform:translateY(0) translateX(0);
+        transform:
+            translateY(0)
+            translateX(0);
     }
 
     50%{
-        transform:translateY(-25px) translateX(15px);
+        transform:
+            translateY(-25px)
+            translateX(15px);
     }
 }
 
@@ -177,7 +222,7 @@ body::after{
 ========================= */
 
 .dashboard-wrapper{
-    padding:24px;
+    padding:35px;
     position:relative;
     z-index:10;
 }
@@ -187,76 +232,63 @@ body::after{
 ========================= */
 
 .glass-container{
-    position:relative;
-    overflow:hidden;
+    background:rgba(255,255,255,0.42);
 
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.62),
-            rgba(255,255,255,.30)
-        );
-
-    border:1px solid rgba(255,255,255,.75);
+    border:1px solid rgba(255,255,255,0.75);
 
     backdrop-filter:blur(24px);
     -webkit-backdrop-filter:blur(24px);
 
-    border-radius:30px;
+    border-radius:32px;
 
-    padding:24px;
+    padding:30px;
 
     box-shadow:
-        0 10px 35px rgba(15,23,42,.08),
-        inset 0 1px 0 rgba(255,255,255,.9);
+        0 10px 35px rgba(15,23,42,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        inset 0 -1px 0 rgba(255,255,255,0.35);
+
+    position:relative;
+    overflow:hidden;
 }
 
 .glass-container::before{
     content:'';
-
     position:absolute;
     top:0;
     left:-120%;
-
     width:70%;
     height:100%;
 
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,.28),
-            transparent
-        );
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.30),
+        transparent
+    );
 
     transform:skewX(-25deg);
 
     animation:shine 8s linear infinite;
 }
 
-@keyframes shine{
-
-    0%{
-        left:-120%;
-    }
-
-    100%{
-        left:150%;
-    }
-}
-
 .glass-inner{
-    position:relative;
+    background:rgba(255,255,255,0.32);
 
-    background:rgba(255,255,255,.36);
-
-    border:1px solid rgba(255,255,255,.70);
-
-    border-radius:24px;
+    border:1px solid rgba(255,255,255,0.65);
 
     backdrop-filter:blur(18px);
 
-    padding:22px;
+    border-radius:26px;
+
+    padding:24px;
+
+    position:relative;
+}
+
+@keyframes shine{
+    0%{ left:-120%; }
+    100%{ left:150%; }
 }
 
 /* =========================
@@ -268,26 +300,16 @@ body::after{
 
     border-radius:18px !important;
 
-    background:rgba(255,255,255,.60) !important;
+    background:rgba(255,255,255,0.58) !important;
 
-    backdrop-filter:blur(18px);
+    backdrop-filter:blur(20px);
 
     color:#0f172a !important;
 
     box-shadow:
-        0 10px 25px rgba(15,23,42,.08);
+        0 10px 25px rgba(15,23,42,0.08);
 
-    padding:15px 18px !important;
-}
-
-/* =========================
-   TABLE WRAP
-========================= */
-
-.table-responsive{
-    border-radius:22px;
-    overflow:auto;
-    width:100%;
+    padding:16px 18px !important;
 }
 
 /* =========================
@@ -295,68 +317,64 @@ body::after{
 ========================= */
 
 .table{
-    width:100%;
-    min-width:1100px;
-
     border-collapse:separate !important;
-    border-spacing:0 10px !important;
-
+    border-spacing:0 12px !important;
     background:transparent !important;
 }
 
 .table thead th{
-    background:rgba(255,255,255,.72) !important;
+    background:rgba(255,255,255,0.65) !important;
 
     border:none !important;
 
-    padding:16px !important;
+    color:#0f172a !important;
 
-    font-size:13px;
     font-weight:700;
-    color:#0f172a;
 
-    white-space:nowrap;
+    padding:18px !important;
+
+    backdrop-filter:blur(12px);
 }
 
 .table thead th:first-child{
-    border-radius:16px 0 0 16px;
+    border-radius:18px 0 0 18px;
 }
 
 .table thead th:last-child{
-    border-radius:0 16px 16px 0;
+    border-radius:0 18px 18px 0;
 }
 
 .table tbody tr{
-    transition:.25s ease;
+    transition:0.25s ease;
 }
 
 .table tbody tr:hover{
-    transform:translateY(-3px);
+    transform:
+        translateY(-4px)
+        scale(1.005);
 }
 
 .table tbody td{
-    background:rgba(255,255,255,.50) !important;
+    background:rgba(255,255,255,0.45) !important;
 
     border:none !important;
 
-    padding:16px 14px !important;
+    padding:18px 15px !important;
 
     vertical-align:middle;
-
-    color:#334155;
 
     backdrop-filter:blur(12px);
 
     box-shadow:
-        0 8px 20px rgba(15,23,42,.05);
+        0 8px 20px rgba(15,23,42,0.05);
 }
 
 .table tbody td:first-child{
-    border-radius:16px 0 0 16px;
+    border-radius:18px 0 0 18px;
 }
 
 .table tbody td:last-child{
-    border-radius:0 16px 16px 0;
+    border-radius:0 18px 18px 0;
 }
 
 /* =========================
@@ -367,19 +385,51 @@ body::after{
 button{
     border:none !important;
 
-    border-radius:14px !important;
+    border-radius:16px !important;
 
     font-weight:600 !important;
 
-    transition:.25s ease !important;
+    transition:0.25s ease !important;
+
+    position:relative;
+    overflow:hidden;
 
     box-shadow:
-        0 8px 18px rgba(59,130,246,.15);
+        0 8px 25px rgba(37,99,235,0.18);
+}
+
+.btn::before,
+button::before{
+    content:'';
+
+    position:absolute;
+    top:0;
+    left:-100%;
+
+    width:100%;
+    height:100%;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.35),
+            transparent
+        );
+
+    transition:0.6s;
+}
+
+.btn:hover::before,
+button:hover::before{
+    left:120%;
 }
 
 .btn:hover,
 button:hover{
-    transform:translateY(-2px);
+    transform:
+        translateY(-2px)
+        scale(1.02);
 }
 
 .btn-primary{
@@ -395,8 +445,8 @@ button:hover{
     background:
         linear-gradient(
             135deg,
-            #38bdf8,
-            #2563eb
+            #7dd3fc,
+            #3b82f6
         ) !important;
 }
 
@@ -429,20 +479,20 @@ select,
 textarea{
     border:none !important;
 
-    border-radius:16px !important;
+    border-radius:18px !important;
 
-    padding:12px 14px !important;
+    padding:13px 16px !important;
 
-    background:rgba(255,255,255,.65) !important;
+    background:rgba(255,255,255,0.60) !important;
 
     backdrop-filter:blur(14px);
 
     color:#0f172a !important;
 
     box-shadow:
-        0 6px 18px rgba(15,23,42,.05);
+        0 6px 20px rgba(15,23,42,0.06);
 
-    transition:.25s ease;
+    transition:0.25s ease;
 }
 
 input:focus,
@@ -450,9 +500,11 @@ select:focus,
 textarea:focus{
     outline:none !important;
 
+    transform:translateY(-1px);
+
     box-shadow:
-        0 0 0 4px rgba(96,165,250,.18),
-        0 12px 24px rgba(59,130,246,.10) !important;
+        0 0 0 4px rgba(96,165,250,0.22),
+        0 12px 24px rgba(59,130,246,0.12) !important;
 }
 
 /* =========================
@@ -462,118 +514,33 @@ textarea:focus{
 .modal-content{
     border:none !important;
 
-    border-radius:24px !important;
+    border-radius:28px !important;
 
-    background:rgba(255,255,255,.78) !important;
+    background:rgba(255,255,255,0.72) !important;
 
-    backdrop-filter:blur(26px);
+    backdrop-filter:blur(30px);
 }
 
 /* =========================
-   MOBILE
+   RESPONSIVE
 ========================= */
 
 @media(max-width:992px){
 
     .dashboard-wrapper{
-        padding:16px;
+        padding:18px;
     }
 
     .glass-container{
-        padding:16px;
-        border-radius:24px;
+        padding:18px;
     }
 
     .glass-inner{
-        padding:16px;
-        border-radius:20px;
+        padding:18px;
     }
 
     .table{
-        min-width:900px;
-    }
-}
-
-@media(max-width:768px){
-
-    .dashboard-wrapper{
-        padding:12px;
-    }
-
-    .glass-container{
-        padding:12px;
-        border-radius:20px;
-    }
-
-    .glass-inner{
-        padding:12px;
-        border-radius:18px;
-    }
-
-    .table{
-        min-width:780px;
-        font-size:12px;
-    }
-
-    .table thead th{
-        padding:12px !important;
-        font-size:12px;
-    }
-
-    .table tbody td{
-        padding:12px 10px !important;
-        font-size:12px;
-    }
-
-    .btn,
-    button{
-        font-size:12px !important;
-        padding:9px 12px !important;
-    }
-
-    input,
-    select,
-    textarea{
-        font-size:13px !important;
-        padding:10px 12px !important;
-    }
-
-    .modal-dialog{
-        margin:10px;
-    }
-
-    .modal-content{
-        border-radius:18px !important;
-    }
-}
-
-@media(max-width:576px){
-
-    .dashboard-wrapper{
-        padding:10px;
-    }
-
-    .glass-container{
-        padding:10px;
-        border-radius:18px;
-    }
-
-    .glass-inner{
-        padding:10px;
-        border-radius:16px;
-    }
-
-    .table{
-        min-width:720px;
-    }
-
-    .alert{
-        font-size:12px !important;
-        padding:12px 14px !important;
-    }
-
-    .bg-bubble{
-        display:none;
+        font-size:13px;
     }
 }
 </style>

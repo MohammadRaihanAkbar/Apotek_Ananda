@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             debounceTimer = setTimeout(() => {
-                fetch(`<?= BASE_URL ?>/backend/controllers/api_search.php?type=${type}&term=${encodeURIComponent(val)}`)
+                fetch(`<?= BASE_URL ?>/backend/controllers/api_search.php?type=${encodeURIComponent(type || '')}&term=${encodeURIComponent(val)}`)
                     .then(res => res.json())
                     .then(data => {
                         suggestionsBox.innerHTML = '';
@@ -72,11 +72,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             data.forEach(item => {
                                 const div = document.createElement('div');
                                 div.className = 'autocomplete-item';
-                                div.innerHTML = `<span class="material-icons-round">history</span>${item.label}`;
+
+                                const icon = document.createElement('span');
+                                icon.className = 'material-icons-round';
+                                icon.textContent = 'history';
+
+                                const label = document.createElement('span');
+                                label.textContent = item.label || item.value || '';
+
+                                div.appendChild(icon);
+                                div.appendChild(label);
+
                                 div.addEventListener('click', function() {
-                                    input.value = item.value;
+                                    input.value = item.value || '';
                                     suggestionsBox.style.display = 'none';
-                                    input.form.submit(); // Auto submit
+                                    if (input.form) input.form.submit(); // Auto submit
                                 });
                                 suggestionsBox.appendChild(div);
                             });

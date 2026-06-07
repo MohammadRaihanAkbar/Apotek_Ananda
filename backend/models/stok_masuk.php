@@ -13,7 +13,16 @@ class StokMasuk {
         $this->db = getDBConnection();
     }
 
-    public function getAll(?int $pbfId = null, ?string $search = null): array {
+    public function getAll(
+        ?int $pbfId = null,
+        ?string $search = null,
+        ?string $tanggalFakturDari = null,
+        ?string $tanggalFakturSampai = null,
+        ?string $tanggalMasukDari = null,
+        ?string $tanggalMasukSampai = null,
+        ?float $hargaMin = null,
+        ?float $hargaMax = null
+    ): array {
         $sql = "SELECT
                     f.*,
                     f.status_bayar AS status_pembayaran,
@@ -39,6 +48,36 @@ class StokMasuk {
             $params['search_faktur'] = $likeSearch;
             $params['search_pbf'] = $likeSearch;
             $params['search_obat'] = $likeSearch;
+        }
+
+        if ($tanggalFakturDari !== null && $tanggalFakturDari !== '') {
+            $conditions[] = "f.tanggal_faktur >= :tanggal_faktur_dari";
+            $params['tanggal_faktur_dari'] = $tanggalFakturDari;
+        }
+
+        if ($tanggalFakturSampai !== null && $tanggalFakturSampai !== '') {
+            $conditions[] = "f.tanggal_faktur <= :tanggal_faktur_sampai";
+            $params['tanggal_faktur_sampai'] = $tanggalFakturSampai;
+        }
+
+        if ($tanggalMasukDari !== null && $tanggalMasukDari !== '') {
+            $conditions[] = "f.tanggal_masuk >= :tanggal_masuk_dari";
+            $params['tanggal_masuk_dari'] = $tanggalMasukDari;
+        }
+
+        if ($tanggalMasukSampai !== null && $tanggalMasukSampai !== '') {
+            $conditions[] = "f.tanggal_masuk <= :tanggal_masuk_sampai";
+            $params['tanggal_masuk_sampai'] = $tanggalMasukSampai;
+        }
+
+        if ($hargaMin !== null && $hargaMin > 0) {
+            $conditions[] = "f.total_harga >= :harga_min";
+            $params['harga_min'] = $hargaMin;
+        }
+
+        if ($hargaMax !== null && $hargaMax > 0) {
+            $conditions[] = "f.total_harga <= :harga_max";
+            $params['harga_max'] = $hargaMax;
         }
 
         if ($conditions) {
@@ -124,7 +163,7 @@ class StokMasuk {
                 "INSERT INTO faktur (no_faktur, id_pbf, tanggal_faktur, tanggal_masuk, tanggal_jatuh_tempo, jumlah_obat, total_qty, total_harga, status_bayar, tanggal_lunas, id_user)
                  VALUES (:no_faktur, :id_pbf, :tanggal_faktur, :tanggal_masuk, :tanggal_jatuh_tempo, :jumlah_obat, :total_qty, :total_harga, :status_bayar, :tanggal_lunas, :id_user)"
             );
-            $status = $header['status_bayar'] ?? 'belum_lunas';
+            $status = 'belum_lunas';
             $stmt->execute([
                 'no_faktur'             => $header['no_faktur'],
                 'id_pbf'                => $header['id_pbf'],
@@ -135,7 +174,7 @@ class StokMasuk {
                 'total_qty'             => $totals['total_qty'],
                 'total_harga'           => $totals['total_harga'],
                 'status_bayar'          => $status,
-                'tanggal_lunas'         => $status === 'lunas' ? date('Y-m-d') : null,
+                'tanggal_lunas'         => null,
                 'id_user'               => $header['id_user'],
             ]);
             $idFaktur = (int) $this->db->lastInsertId();
@@ -153,7 +192,6 @@ class StokMasuk {
         $this->db->beginTransaction();
         try {
             $totals = $this->calculateTotals($items);
-            $status = $header['status_bayar'] ?? 'belum_lunas';
             $stmt = $this->db->prepare(
                 "UPDATE faktur SET
                     no_faktur = :no_faktur,
@@ -163,12 +201,7 @@ class StokMasuk {
                     tanggal_jatuh_tempo = :tanggal_jatuh_tempo,
                     jumlah_obat = :jumlah_obat,
                     total_qty = :total_qty,
-                    total_harga = :total_harga,
-                    status_bayar = :status_bayar,
-                    tanggal_lunas = CASE WHEN :status2 = 'lunas' AND tanggal_lunas IS NULL THEN CURDATE()
-                                         WHEN :status3 = 'belum_lunas' THEN NULL
-                                         ELSE tanggal_lunas END,
-                    bukti_pembayaran = CASE WHEN :status4 = 'belum_lunas' THEN NULL ELSE bukti_pembayaran END
+                    total_harga = :total_harga
                  WHERE id_faktur = :id_faktur"
             );
             $stmt->execute([
@@ -180,10 +213,6 @@ class StokMasuk {
                 'jumlah_obat'           => $totals['jumlah_obat'],
                 'total_qty'             => $totals['total_qty'],
                 'total_harga'           => $totals['total_harga'],
-                'status_bayar'          => $status,
-                'status2'               => $status,
-                'status3'               => $status,
-                'status4'               => $status,
                 'id_faktur'             => $idFaktur,
             ]);
 
@@ -218,8 +247,8 @@ class StokMasuk {
 
     private function insertDetails(int $idFaktur, array $items): void {
         $detailStmt = $this->db->prepare(
-            "INSERT INTO obat_faktur (id_faktur, nama_obat, jenis_obat, satuan, harga_beli, discount, qty, total)
-             VALUES (:id_faktur, :nama_obat, :jenis_obat, :satuan, :harga_beli, :discount, :qty, :total)"
+            "INSERT INTO obat_faktur (id_faktur, nama_obat, merk_dagang, jenis_obat, satuan, harga_beli, discount, qty, total)
+             VALUES (:id_faktur, :nama_obat, :merk_dagang, :jenis_obat, :satuan, :harga_beli, :discount, :qty, :total)"
         );
         $batchStmt = $this->db->prepare(
             "INSERT INTO obat_batch (id_obat_faktur, no_batch, expired_date)
@@ -234,6 +263,7 @@ class StokMasuk {
             $detailStmt->execute([
                 'id_faktur'   => $idFaktur,
                 'nama_obat'   => $item['nama_obat'],
+                'merk_dagang' => $item['merk_dagang'] ?? null,
                 'jenis_obat'  => $item['jenis_obat'] ?? null,
                 'satuan'      => $item['satuan'],
                 'harga_beli'  => $harga,
@@ -268,7 +298,7 @@ class StokMasuk {
 
     public function getExpiringSixMonths(): array {
         $stmt = $this->db->query(
-            "SELECT ofa.nama_obat, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ofa.discount,
+            "SELECT ofa.nama_obat, ofa.merk_dagang, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ofa.discount,
                     COUNT(ob.id_batch) AS jumlah_masuk,
                     MIN(ob.expired_date) AS expired_date,
                     GROUP_CONCAT(DISTINCT ob.no_batch ORDER BY ob.no_batch SEPARATOR ', ') AS batch,
@@ -278,7 +308,7 @@ class StokMasuk {
              JOIN faktur f ON ofa.id_faktur = f.id_faktur
              JOIN pbf p ON f.id_pbf = p.id_pbf
              WHERE ob.expired_date <= DATE_ADD(CURDATE(), INTERVAL 6 MONTH)
-             GROUP BY ofa.id_obat_faktur, ofa.nama_obat, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ofa.discount, f.id_faktur, f.no_faktur, f.tanggal_faktur, f.tanggal_masuk, p.nama_pbf
+             GROUP BY ofa.id_obat_faktur, ofa.nama_obat, ofa.merk_dagang, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ofa.discount, f.id_faktur, f.no_faktur, f.tanggal_faktur, f.tanggal_masuk, p.nama_pbf
              ORDER BY MIN(ob.expired_date) ASC"
         );
         return $stmt->fetchAll();

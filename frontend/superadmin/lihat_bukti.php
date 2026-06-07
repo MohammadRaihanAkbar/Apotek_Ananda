@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../backend/helpers/session_helper.php';
 requireSuperAdmin();
 require_once __DIR__ . '/../../backend/models/piutang.php';
+require_once __DIR__ . '/../../backend/models/log_aktivitas.php';
 
 $id = isset($_GET['id']) ? sanitizeInt($_GET['id']) : 0;
 $piutang = $id > 0 ? (new Piutang())->findById($id) : null;
@@ -29,7 +30,7 @@ $fileUrl = BASE_URL . '/' . $encodedPath;
 </div>
 
 <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;">
-    <a href="<?= BASE_URL ?>/frontend/superadmin/piutang.php" class="btn btn-secondary">← Back</a>
+    <a href="<?= BASE_URL ?>/frontend/superadmin/piutang.php" class="btn btn-secondary"><span class="material-icons-round">arrow_back</span>Back</a>
     <?php if ($fileExists): ?>
         <a href="<?= htmlspecialchars($fileUrl) ?>" class="btn btn-primary" target="_blank">Buka File</a>
     <?php endif; ?>

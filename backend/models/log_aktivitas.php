@@ -19,7 +19,7 @@ class LogAktivitas {
      */
     public function catat(int $userId, string $aksi, string $keterangan): bool {
         $stmt = $this->db->prepare(
-            "INSERT INTO log_aktivitas (id_user, aksi, keterangan) VALUES (:id_user, :aksi, :keterangan)"
+            "INSERT INTO log_aktivitas (id_user, aksi, keterangan, created_at) VALUES (:id_user, :aksi, :keterangan, NOW())"
         );
         return $stmt->execute([
             'id_user'    => $userId,

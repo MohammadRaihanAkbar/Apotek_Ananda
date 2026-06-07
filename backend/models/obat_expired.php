@@ -17,6 +17,7 @@ class ObatExpired {
                     MIN(ob.id_batch) AS id_batch,
                     ofa.id_obat_faktur,
                     ofa.nama_obat,
+                    ofa.merk_dagang,
                     ofa.jenis_obat,
                     ofa.satuan,
                     ofa.harga_beli,
@@ -68,7 +69,7 @@ class ObatExpired {
         }
 
         $sql .= " WHERE " . implode(' AND ', $conditions);
-        $sql .= " GROUP BY ofa.id_obat_faktur, ofa.nama_obat, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ob.no_batch, ob.expired_date, p.nama_pbf, f.no_faktur, f.tanggal_faktur, f.tanggal_masuk
+        $sql .= " GROUP BY ofa.id_obat_faktur, ofa.nama_obat, ofa.merk_dagang, ofa.jenis_obat, ofa.satuan, ofa.harga_beli, ob.no_batch, ob.expired_date, p.nama_pbf, f.no_faktur, f.tanggal_faktur, f.tanggal_masuk
                   ORDER BY ob.expired_date ASC, ofa.nama_obat ASC";
 
         $stmt = $this->db->prepare($sql);

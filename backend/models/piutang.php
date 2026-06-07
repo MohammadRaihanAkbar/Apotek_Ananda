@@ -12,15 +12,12 @@ class Piutang {
         $this->db = getDBConnection();
     }
 
-    /**
-     * Get piutang filtered by status (belum_lunas / lunas) with optional search.
-     * Ordered by created_at DESC (last-input-first).
-     */
-    public function getAllByStatus(string $status, ?string $search = null): array {
-        $sql = "SELECT
+    private function baseSelectSql(): string {
+        return "SELECT
                     f.id_faktur,
                     f.id_faktur AS id_piutang,
                     f.no_faktur,
+                    f.id_pbf,
                     p.nama_pbf,
                     f.tanggal_faktur,
                     f.tanggal_jatuh_tempo,
@@ -28,14 +25,61 @@ class Piutang {
                     f.status_bayar AS status_pembayaran,
                     f.tanggal_lunas,
                     f.bukti_pembayaran,
+                    f.created_at,
                     u.nama_lengkap AS created_by,
                     COUNT(ofa.id_obat_faktur) AS jumlah_item,
                     COALESCE(SUM(ofa.total), 0) AS jumlah_harga
                 FROM faktur f
                 JOIN pbf p ON f.id_pbf = p.id_pbf
                 LEFT JOIN users u ON f.id_user = u.id_user
-                LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
-                WHERE f.status_bayar = :status";
+                LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
+    }
+
+    private function groupOrderSql(): string {
+        return " GROUP BY f.id_faktur, f.no_faktur, f.id_pbf, p.nama_pbf, f.tanggal_faktur,
+                         f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas,
+                         f.bukti_pembayaran, f.created_at, u.nama_lengkap
+                  ORDER BY f.created_at DESC";
+    }
+
+    private function buildFilterConditions(array $filters, array &$params, string $prefix = 'filter'): array {
+        $conditions = [];
+
+        if (!empty($filters['pbf']) && (int)$filters['pbf'] > 0) {
+            $conditions[] = "f.id_pbf = :{$prefix}_pbf";
+            $params["{$prefix}_pbf"] = (int)$filters['pbf'];
+        }
+
+        if (!empty($filters['bulan']) && preg_match('/^\d{4}-\d{2}$/', $filters['bulan'])) {
+            $conditions[] = "DATE_FORMAT(f.tanggal_faktur, '%Y-%m') = :{$prefix}_bulan";
+            $params["{$prefix}_bulan"] = $filters['bulan'];
+        }
+
+        if (!empty($filters['tempo'])) {
+            switch ($filters['tempo']) {
+                case 'no_due_date':
+                    $conditions[] = "f.status_bayar = 'belum_lunas' AND f.tanggal_jatuh_tempo IS NULL";
+                    break;
+                case 'overdue':
+                    $conditions[] = "f.status_bayar = 'belum_lunas' AND f.tanggal_jatuh_tempo IS NOT NULL AND f.tanggal_jatuh_tempo < CURDATE()";
+                    break;
+                case 'today':
+                    $conditions[] = "f.status_bayar = 'belum_lunas' AND f.tanggal_jatuh_tempo = CURDATE()";
+                    break;
+                case 'due_soon':
+                    $conditions[] = "f.status_bayar = 'belum_lunas' AND f.tanggal_jatuh_tempo IS NOT NULL AND f.tanggal_jatuh_tempo BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
+                    break;
+                case 'safe':
+                    $conditions[] = "f.status_bayar = 'belum_lunas' AND f.tanggal_jatuh_tempo IS NOT NULL AND f.tanggal_jatuh_tempo > DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
+                    break;
+            }
+        }
+
+        return $conditions;
+    }
+
+    public function getAllByStatus(string $status, ?string $search = null, array $filters = []): array {
+        $sql = $this->baseSelectSql() . " WHERE f.status_bayar = :status";
         $params = ['status' => $status];
 
         if ($search !== null && $search !== '') {
@@ -46,35 +90,22 @@ class Piutang {
             $params['search_obat'] = $likeSearch;
         }
 
-        $sql .= " GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran, u.nama_lengkap
-                  ORDER BY f.created_at DESC";
+        foreach ($this->buildFilterConditions($filters, $params) as $condition) {
+            $sql .= " AND " . $condition;
+        }
+
+        $sql .= $this->groupOrderSql();
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    /**
-     * Legacy getAll — still available for export or other uses.
-     */
-    public function getAll(?string $status = null, ?string $bulan = null, ?string $search = null): array {
-        $sql = "SELECT
-                    f.id_faktur,
-                    f.id_faktur AS id_piutang,
-                    f.no_faktur,
-                    p.nama_pbf,
-                    f.tanggal_faktur,
-                    f.tanggal_jatuh_tempo,
-                    f.status_bayar AS status,
-                    f.status_bayar AS status_pembayaran,
-                    f.tanggal_lunas,
-                    f.bukti_pembayaran,
-                    u.nama_lengkap AS created_by,
-                    COUNT(ofa.id_obat_faktur) AS jumlah_item,
-                    COALESCE(SUM(ofa.total), 0) AS jumlah_harga
-                FROM faktur f
-                JOIN pbf p ON f.id_pbf = p.id_pbf
-                LEFT JOIN users u ON f.id_user = u.id_user
-                LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
+    public function getAll(?string $status = null, ?string $bulan = null, ?string $search = null, array $filters = []): array {
+        if ($bulan !== null && $bulan !== '') {
+            $filters['bulan'] = $bulan;
+        }
+
+        $sql = $this->baseSelectSql();
         $params = [];
         $conditions = [];
 
@@ -82,10 +113,7 @@ class Piutang {
             $conditions[] = "f.status_bayar = :status";
             $params['status'] = $status;
         }
-        if ($bulan !== null && preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-            $conditions[] = "DATE_FORMAT(f.tanggal_faktur, '%Y-%m') = :bulan";
-            $params['bulan'] = $bulan;
-        }
+
         if ($search !== null && $search !== '') {
             $conditions[] = "(f.no_faktur LIKE :search_faktur OR p.nama_pbf LIKE :search_pbf OR ofa.nama_obat LIKE :search_obat)";
             $likeSearch = "%$search%";
@@ -93,10 +121,14 @@ class Piutang {
             $params['search_pbf'] = $likeSearch;
             $params['search_obat'] = $likeSearch;
         }
-        if ($conditions) $sql .= " WHERE " . implode(' AND ', $conditions);
 
-        $sql .= " GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran, u.nama_lengkap
-                  ORDER BY f.created_at DESC";
+        $conditions = array_merge($conditions, $this->buildFilterConditions($filters, $params));
+
+        if ($conditions) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        $sql .= $this->groupOrderSql();
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -108,6 +140,7 @@ class Piutang {
                 f.id_faktur,
                 f.id_faktur AS id_piutang,
                 f.no_faktur,
+                f.id_pbf,
                 p.nama_pbf,
                 f.tanggal_faktur,
                 f.tanggal_jatuh_tempo,
@@ -120,7 +153,8 @@ class Piutang {
              JOIN pbf p ON f.id_pbf = p.id_pbf
              LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
              WHERE f.id_faktur = :id
-             GROUP BY f.id_faktur, f.no_faktur, p.nama_pbf, f.tanggal_faktur, f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran
+             GROUP BY f.id_faktur, f.no_faktur, f.id_pbf, p.nama_pbf, f.tanggal_faktur,
+                      f.tanggal_jatuh_tempo, f.status_bayar, f.tanggal_lunas, f.bukti_pembayaran
              LIMIT 1"
         );
         $stmt->execute(['id' => $id]);
@@ -146,7 +180,7 @@ class Piutang {
         return $stmt->execute(['id' => $id]);
     }
 
-    public function getSummary(): array {
+    public function getSummary(?string $status = null, ?string $search = null, array $filters = []): array {
         $sql = "SELECT
                     COUNT(*) AS total_records,
                     COALESCE(SUM(total_faktur), 0) AS total_semua,
@@ -155,13 +189,48 @@ class Piutang {
                     COUNT(CASE WHEN status_bayar = 'lunas' THEN 1 END) AS count_lunas,
                     COUNT(CASE WHEN status_bayar = 'belum_lunas' THEN 1 END) AS count_belum_lunas
                 FROM (
-                    SELECT f.id_faktur, f.status_bayar, f.tanggal_faktur, COALESCE(SUM(ofa.total), 0) AS total_faktur
+                    SELECT f.id_faktur, f.status_bayar, COALESCE(SUM(ofa.total), 0) AS total_faktur
                     FROM faktur f
-                    LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur
-                    GROUP BY f.id_faktur, f.status_bayar, f.tanggal_faktur) x";
+                    JOIN pbf p ON f.id_pbf = p.id_pbf
+                    LEFT JOIN obat_faktur ofa ON f.id_faktur = ofa.id_faktur";
+
+        $params = [];
+        $conditions = [];
+
+        if ($status !== null && in_array($status, ['lunas', 'belum_lunas'], true)) {
+            $conditions[] = "f.status_bayar = :summary_status";
+            $params['summary_status'] = $status;
+        }
+
+        if ($search !== null && $search !== '') {
+            $conditions[] = "(f.no_faktur LIKE :summary_search_faktur OR p.nama_pbf LIKE :summary_search_pbf OR ofa.nama_obat LIKE :summary_search_obat)";
+            $likeSearch = "%$search%";
+            $params['summary_search_faktur'] = $likeSearch;
+            $params['summary_search_pbf'] = $likeSearch;
+            $params['summary_search_obat'] = $likeSearch;
+        }
+
+        $conditions = array_merge($conditions, $this->buildFilterConditions($filters, $params, 'summary_filter'));
+
+        if ($conditions) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        $sql .= " GROUP BY f.id_faktur, f.status_bayar
+                ) x";
+
         $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetch();
+        $stmt->execute($params);
+        $result = $stmt->fetch();
+
+        return $result ?: [
+            'total_records' => 0,
+            'total_semua' => 0,
+            'total_lunas' => 0,
+            'total_belum_lunas' => 0,
+            'count_lunas' => 0,
+            'count_belum_lunas' => 0,
+        ];
     }
 
     public function getAvailableMonths(): array {

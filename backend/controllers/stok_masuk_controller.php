@@ -43,18 +43,15 @@ function getValidSatuan(): array {
 }
 
 function collectHeader(): array {
-    $status = $_POST['status_bayar'] ?? $_POST['status_pembayaran'] ?? 'belum_lunas';
-    if (!in_array($status, ['belum_lunas', 'lunas'], true)) {
-        $status = 'belum_lunas';
-    }
     return [
         'id_pbf'              => sanitizeInt($_POST['id_pbf'] ?? 0),
         'no_faktur'           => sanitize($_POST['no_faktur'] ?? ''),
         'tanggal_faktur'      => $_POST['tanggal_faktur'] ?? '',
         'tanggal_masuk'       => $_POST['tanggal_masuk'] ?? '',
-        // Jatuh tempo tidak ditampilkan di Manajemen Stok. Nilai ini sengaja nullable.
-        'tanggal_jatuh_tempo' => null,
-        'status_bayar'        => $status,
+        // Jatuh tempo diinput saat tambah/edit faktur, tetapi hanya ditampilkan di menu Piutang.
+        'tanggal_jatuh_tempo' => $_POST['tanggal_jatuh_tempo'] ?? '',
+        // Status pembayaran tidak dikelola di Manajemen Stok. Perubahan status hanya dari menu Piutang.
+        'status_bayar'        => 'belum_lunas',
         'id_user'             => getCurrentUserId(),
     ];
 }
@@ -75,6 +72,7 @@ function parseBatchJson(string $json): array {
 
 function collectItems(): array {
     $names = $_POST['nama_obat'] ?? [];
+    $merk = $_POST['merk_dagang'] ?? [];
     $satuan = $_POST['satuan'] ?? [];
     $harga = $_POST['harga_beli'] ?? [];
     $disc = $_POST['discount'] ?? [];
@@ -89,6 +87,7 @@ function collectItems(): array {
         if ($nama === '') continue;
         $row = [
             'nama_obat'   => $nama,
+            'merk_dagang' => sanitize($merk[$i] ?? ''),
             'satuan'      => $satuan[$i] ?? '',
             'harga_beli'  => sanitizeDecimal($harga[$i] ?? 0),
             'discount'    => sanitizeDecimal($disc[$i] ?? 0),
@@ -107,6 +106,7 @@ function validateFaktur(array $header, array $items): array {
     if ($header['no_faktur'] === '') $errors[] = 'No. faktur harus diisi';
     if (!isValidDate($header['tanggal_faktur'])) $errors[] = 'Tanggal faktur tidak valid';
     if (!isValidDate($header['tanggal_masuk'])) $errors[] = 'Tanggal masuk tidak valid';
+    if (!isValidDate($header['tanggal_jatuh_tempo'])) $errors[] = 'Tanggal jatuh tempo tidak valid';
     if (empty($items)) $errors[] = 'Minimal harus ada satu item obat';
 
     foreach ($items as $idx => $item) {

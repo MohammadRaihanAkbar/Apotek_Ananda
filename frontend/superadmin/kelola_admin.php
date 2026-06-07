@@ -49,11 +49,11 @@ require_once __DIR__ . '/../templates/sidebar.php';
                             <td><span class="badge badge-success">Staff</span></td>
                             <td><?= date('d/m/Y', strtotime($admin['created_at'])) ?></td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick='editAdmin(<?= json_encode($admin) ?>)'>✏️ Edit</button>
+                                <button class="btn btn-warning btn-sm" onclick='editAdmin(<?= json_encode($admin) ?>)'><span class="material-icons-round">edit</span>Edit</button>
                                 <form method="POST" action="<?= BASE_URL ?>/backend/controllers/admin_controller.php?action=delete" style="display:inline" onsubmit="return confirm('Hapus akun staff ini? Semua data terkait akan ikut terhapus.')">
                                     <?= csrfField() ?>
                                     <input type="hidden" name="id_user" value="<?= $admin['id_user'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm"><span class="material-icons-round">delete</span>Hapus</button>
                                 </form>
                             </td>
                         </tr>
@@ -75,7 +75,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
             <div class="form-group"><label>Username * (min 4 karakter, huruf/angka/_)</label><input type="text" name="username" class="form-control" required minlength="4" pattern="[a-zA-Z0-9_]+"></div>
             <div class="form-group"><label>Password * (min 6 karakter)</label><input type="password" name="password" class="form-control" required minlength="6"></div>
             <div class="form-group"><label>Konfirmasi Password *</label><input type="password" name="confirm_password" class="form-control" required minlength="6"></div>
-            <button type="submit" class="btn btn-primary">💾 Simpan Staff</button>
+            <button type="submit" class="btn btn-primary"><span class="material-icons-round">save</span>Simpan Staff</button>
         </form>
     </div>
 </div>
@@ -91,7 +91,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
             <div class="form-group"><label>Username</label><input type="text" name="username" id="adminEditUsername" class="form-control" required minlength="4"></div>
             <div class="form-group"><label>Password Baru (kosongkan jika tidak diubah)</label><input type="password" name="password" class="form-control" minlength="6"></div>
             <div class="form-group"><label>Konfirmasi Password Baru</label><input type="password" name="confirm_password" class="form-control" minlength="6"></div>
-            <button type="submit" class="btn btn-primary">💾 Update Staff</button>
+            <button type="submit" class="btn btn-primary"><span class="material-icons-round">save</span>Update Staff</button>
         </form>
     </div>
 </div>
